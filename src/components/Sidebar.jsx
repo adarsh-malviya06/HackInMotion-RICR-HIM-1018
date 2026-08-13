@@ -101,7 +101,7 @@ export const Sidebar = () => {
       <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-subtle)', padding: '16px 12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <Flame size={16} color="var(--amber)" />
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>FINLY Smart Engine</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>Finova Smart Engine</span>
         </div>
         <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
           Algorithmic data normalization, deduplication & health scoring active.

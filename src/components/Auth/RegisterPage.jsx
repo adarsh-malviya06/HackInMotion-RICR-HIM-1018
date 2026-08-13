@@ -62,7 +62,7 @@ export const RegisterPage = ({ onNavigateToLogin, onRegisterSuccess }) => {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            placeholder="user@finly.ai"
+            placeholder="user@finova.ai"
             style={{ width: '100%', height: '42px', borderRadius: '10px', padding: '0 14px', border: '1px solid #dce0ee' }}
           />
         </div>

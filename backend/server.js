@@ -20,7 +20,7 @@ app.use(express.json({ limit: '5mb' }));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
-    agent: 'FINLY Financial AI Copilot',
+    agent: 'Finova Financial AI Copilot',
     groq_configured: Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim() !== '')
   });
 });
@@ -70,7 +70,7 @@ app.post('/api/agent/chat', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 FINLY AI Agent Backend Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Finova AI Agent Backend Server running on http://localhost:${PORT}`);
   console.log(`🤖 Groq Model: ${process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'}`);
   console.log(`🔑 Groq API Key: ${process.env.GROQ_API_KEY ? 'Configured ✅' : 'Not set (Using tool fallback engine) ⚠️'}`);
 });

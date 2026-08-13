@@ -1,6 +1,6 @@
-# FINLY — API & Financial Intelligence Documentation
+# Finova — API & Financial Intelligence Documentation
 
-This document provides complete technical specifications for **FINLY**'s Backend AI Agent API, Financial Tools Catalogue, Data Categorization Algorithms, and Supabase Database Integration.
+This document provides complete technical specifications for **Finova**'s Backend AI Agent API, Financial Tools Catalogue, Data Categorization Algorithms, and Supabase Database Integration.
 
 ---
 

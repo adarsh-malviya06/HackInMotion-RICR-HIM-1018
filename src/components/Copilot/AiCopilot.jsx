@@ -9,7 +9,7 @@ export const AiCopilot = () => {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: `Hello! I am your **FINLY AI Financial Copilot**. I have full contextual awareness of your database.\n\nAsk me anything about your spending habits, financial health score, money leaks, or how to reach your savings goals faster!`
+      text: `Hello! I am your **Finova AI Financial Copilot**. I have full contextual awareness of your database.\n\nAsk me anything about your spending habits, financial health score, money leaks, or how to reach your savings goals faster!`
     }
   ]);
 

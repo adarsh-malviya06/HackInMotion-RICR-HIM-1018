@@ -4,7 +4,7 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 
 export const LoginPage = ({ onNavigateToRegister, onLoginSuccess }) => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('demo@finly.ai');
+  const [email, setEmail] = useState('demo@finova.ai');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export const LoginPage = ({ onNavigateToRegister, onLoginSuccess }) => {
         <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-card-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', marginBottom: '12px' }}>
           <Sparkles size={20} color="#c084fc" />
         </div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-dark)', margin: 0 }}>Welcome to FINLY</h2>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-dark)', margin: 0 }}>Welcome to Finova</h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '4px' }}>Sign in to access your Financial AI Copilot & Dashboard</p>
       </div>
 

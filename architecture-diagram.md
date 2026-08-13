@@ -1,4 +1,4 @@
-# FINLY — System Architecture Diagram
+# Finova — System Architecture Diagram
 
 ```mermaid
 graph TD

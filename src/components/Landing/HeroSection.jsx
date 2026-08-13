@@ -69,7 +69,7 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
             marginBottom: '28px',
             fontWeight: 500
           }}>
-            Upload your transactions. FINLY cleans the mess, finds the patterns, and tells you what to do next.
+            Upload your transactions. Finova cleans the mess, finds the patterns, and tells you what to do next.
           </p>
 
           {/* CTA Buttons */}
@@ -231,7 +231,7 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
                 <h3 className="display-title" style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, letterSpacing: '-0.01em', color: 'var(--text-dark)' }}>
-                  FINLY COMMAND CENTER
+                  FINOVA COMMAND CENTER
                 </h3>
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                   Your Financial Overview
