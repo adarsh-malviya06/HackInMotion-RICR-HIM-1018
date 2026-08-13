@@ -71,6 +71,10 @@ function runTests() {
   assert(topCatsResult.top_categories[0].category === 'Housing', 'get_top_spending_categories ranks Housing top at $1200');
   assert(topCatsResult.top_categories[1].category === 'Food & Dining', 'get_top_spending_categories ranks Food & Dining second at $800');
 
+  const recentTxsResult = executeToolCall('get_recent_transactions', { limit: 5 }, mockUserAContext);
+  assert(recentTxsResult.returned_count === 5, 'get_recent_transactions returns requested 5 items');
+  assert(recentTxsResult.transactions[0].merchant === 'Income' || recentTxsResult.transactions[0].category === 'Income', 'get_recent_transactions includes date, merchant, category, and amount');
+
   // 2. Health Tool Tests
   const healthResult = executeToolCall('get_financial_health', {}, mockUserAContext);
   assert(healthResult.score === 82, 'get_financial_health retrieves expected health score');

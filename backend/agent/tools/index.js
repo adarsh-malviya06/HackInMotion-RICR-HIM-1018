@@ -8,7 +8,8 @@ import {
   compare_monthly_spending,
   get_top_spending_categories,
   get_top_merchants,
-  get_transaction_summary
+  get_transaction_summary,
+  get_recent_transactions
 } from './spending_tools.js';
 
 import {
@@ -95,6 +96,21 @@ export const TOOLS_DEFINITIONS = [
       name: 'get_transaction_summary',
       description: 'Returns overall total income, total expenses, net savings, and count.',
       parameters: { type: 'object', properties: {} }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_recent_transactions',
+      description: 'Retrieves a list of individual transaction records (with date, merchant, category, type, and amount). Use whenever the user asks to see, show, or list transactions (e.g. "show me first 10 transactions", "show recent transactions").',
+      parameters: {
+        type: 'object',
+        properties: {
+          limit: { type: 'number', description: 'Number of transactions to return (default 10, max 20)' },
+          category: { type: 'string', description: 'Filter by category (optional)' },
+          type: { type: 'string', description: 'Filter by type: income or expense (optional)' }
+        }
+      }
     }
   },
   {
@@ -249,6 +265,8 @@ export const executeToolCall = (toolName, toolArgs, userContext) => {
       return get_top_merchants(userContext, toolArgs);
     case 'get_transaction_summary':
       return get_transaction_summary(userContext);
+    case 'get_recent_transactions':
+      return get_recent_transactions(userContext, toolArgs);
     case 'get_financial_health':
       return get_financial_health(userContext);
     case 'get_health_factors':
