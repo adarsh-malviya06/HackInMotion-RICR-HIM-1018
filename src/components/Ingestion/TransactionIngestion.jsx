@@ -6,11 +6,7 @@ import {
   PlusCircle, 
   FileSpreadsheet, 
   Check, 
-  Download,
-  Calendar,
-  Tag,
-  CreditCard,
-  CheckCircle2
+  Download
 } from 'lucide-react';
 
 export const TransactionIngestion = () => {
@@ -293,10 +289,10 @@ export const TransactionIngestion = () => {
           >
             <FileSpreadsheet size={52} color="var(--accent-purple)" style={{ marginBottom: '14px' }} />
             <h3 className="display-title" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '6px' }}>
-              Drag & Drop Bank CSV Statement(s) Here
+              {csvFile ? `Loaded File: ${csvFile.name}` : 'Drag & Drop Bank CSV Statement Here'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Select one or multiple CSV statement files (e.g. August.csv, September.csv). Existing data is never overwritten.
+              {csvFile ? `${rawRows.length} rows parsed. Map your columns below.` : 'Supports CSV exports from Chase, Bank of America, Wells Fargo, Revolut, Amex, Apple Card & more.'}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
               <label className="btn-pill-dark" style={{ cursor: 'pointer' }}>

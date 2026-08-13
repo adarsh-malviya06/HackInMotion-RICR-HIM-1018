@@ -1,7 +1,6 @@
 import React from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { 
-  BrainCircuit, 
   Sparkles, 
   AlertTriangle, 
   Flame, 

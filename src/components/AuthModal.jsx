@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { User, Lock, Mail, X, Sparkles } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const AuthModal = ({ isOpen, onClose }) => {
   const { supabase, showToast } = useFinance();
@@ -23,7 +23,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
     try {
       if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName } }
@@ -32,7 +32,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
         showToast('Account created! Please check your email for verification.', 'success');
         onClose();
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         showToast('Successfully signed in!', 'success');
         onClose();

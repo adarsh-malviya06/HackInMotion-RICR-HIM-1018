@@ -4,7 +4,7 @@ import { getSupabaseClient } from '../lib/supabase';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ id: 'demo_user', email: 'user@finly.ai', name: 'Financial User' });
+  const [user, setUser] = useState({ id: 'demo_user', email: 'user@finova.ai', name: 'Financial User' });
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [loading, setLoading] = useState(false);
 

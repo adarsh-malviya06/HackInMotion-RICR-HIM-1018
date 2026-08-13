@@ -1,6 +1,6 @@
-# FINLY — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
+# Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
 
-FINLY is a high-performance financial management platform integrated with an **intelligent Financial AI Agent** powered by **Groq LLM + Function/Tool Calling**.
+Finova is a high-performance financial management platform integrated with an **intelligent Financial AI Agent** powered by **Groq LLM + Function/Tool Calling**.
 
 ---
 

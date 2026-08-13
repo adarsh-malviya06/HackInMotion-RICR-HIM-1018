@@ -34,7 +34,7 @@ const MainLayout = () => {
         clearAllData();
       }
     }
-  }, [user?.id, isAuthenticated, loading, fetchUserFinancialData, clearAllData]);
+  }, [user, isAuthenticated, loading, fetchUserFinancialData, clearAllData]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -80,7 +80,6 @@ const MainLayout = () => {
     return (
       <LandingPage
         onNavigateToRegister={() => setViewRoute('register')}
-        onNavigateToLogin={() => setViewRoute('login')}
       />
     );
   };
