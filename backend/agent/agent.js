@@ -100,12 +100,18 @@ export const runFinancialAgent = async ({ message, userContext, history = [] }) 
  * Evaluates intent and executes relevant tools directly when LLM API is unavailable.
  */
 function handleDeterministicFallback(query, userContext, apiErrorMessage = null) {
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
 
   let toolName = 'get_transaction_summary';
   let toolArgs = {};
 
-  if (q.includes('where') || q.includes('spending') || q.includes('top category') || q.includes('most')) {
+  const matchNum = q.match(/\b(\d+)\b/);
+  const parsedLimit = matchNum ? parseInt(matchNum[1], 10) : 10;
+
+  if (q.includes('traction') || q.includes('transaction') || q.includes('trans') || q.includes('tx') || q.includes('item') || q.includes('entry') || q.includes('list') || q.includes('show') || q.includes('history')) {
+    toolName = 'get_recent_transactions';
+    toolArgs = { limit: parsedLimit };
+  } else if (q.includes('where') || q.includes('spending') || q.includes('top category') || q.includes('most')) {
     toolName = 'get_top_spending_categories';
     toolArgs = { limit: 5 };
   } else if (q.includes('health') || q.includes('score') || q.includes('status')) {
@@ -125,7 +131,17 @@ function handleDeterministicFallback(query, userContext, apiErrorMessage = null)
   const currency = userContext.currency || '$';
 
   let answerText = '';
-  if (toolName === 'get_top_spending_categories' && result.top_categories?.length) {
+  if (toolName === 'get_recent_transactions') {
+    if (result.transactions && result.transactions.length > 0) {
+      answerText = `Here are the first **${result.transactions.length}** transactions from your database (Total: **${result.total_matching_transactions}**):\n\n`;
+      result.transactions.forEach(t => {
+        const typeBadge = t.type === 'income' ? '🟢 Inflow' : '🔴 Outflow';
+        answerText += `${t.index}. **${t.merchant}** — ${t.amount} (${t.category}) • *${t.date}* [${typeBadge}]\n`;
+      });
+    } else {
+      answerText = `No transactions found in your database. Upload a CSV statement or add entries manually to view them.`;
+    }
+  } else if (toolName === 'get_top_spending_categories' && result.top_categories?.length) {
     answerText = `Here are your top spending categories calculated from your dataset:\n\n`;
     result.top_categories.forEach(c => {
       answerText += `• **${c.category}**: ${currency}${c.amount.toFixed(2)} (${c.percentage}% of total)\n`;
