@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { processCopilotQuery } from '../../services/aiCopilotService';
-import { Sparkles, X, Send, Bot, User, Lightbulb, Maximize2, Minimize2 } from 'lucide-react';
+import { processCopilotQueryAsync } from '../../services/aiCopilotService';
+import { Sparkles, X, Send, Bot, User, Lightbulb, Maximize2, Minimize2, Loader2, Wrench } from 'lucide-react';
 
 export const FloatingAiCopilot = () => {
   const { transactions, budgets, goals, recurring, healthScore, currency } = useFinance();
@@ -9,6 +9,7 @@ export const FloatingAiCopilot = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [inputQuery, setInputQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
@@ -29,33 +30,43 @@ export const FloatingAiCopilot = () => {
     if (isOpen && chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages, isOpen, isExpanded]);
+  }, [messages, isOpen, isExpanded, isLoading]);
 
-  const handleSend = (textToSend = inputQuery) => {
-    if (!textToSend.trim()) return;
+  const handleSend = async (textToSend = inputQuery) => {
+    if (!textToSend.trim() || isLoading) return;
 
     const userMsg = { sender: 'user', text: textToSend };
+    const history = messages.slice(1); // Exclude initial greeting from history array
     setMessages(prev => [...prev, userMsg]);
     setInputQuery('');
+    setIsLoading(true);
 
-    setTimeout(() => {
-      const result = processCopilotQuery(textToSend, {
+    try {
+      const result = await processCopilotQueryAsync(textToSend, {
         transactions,
         budgets,
         goals,
         recurring,
         healthScore,
         currency
-      });
+      }, history);
 
       const botMsg = {
         sender: 'bot',
         text: result.answer,
-        recommendation: result.recommendation
+        recommendation: result.recommendation,
+        tools_used: result.tools_used || []
       };
 
       setMessages(prev => [...prev, botMsg]);
-    }, 350);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        sender: 'bot',
+        text: "I couldn't retrieve your financial data right now. Please try again."
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -207,7 +218,7 @@ export const FloatingAiCopilot = () => {
                   ✦ AI Copilot
                 </h3>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                  Live Financial Assistant
+                  Groq LLM + Financial Tool Calling
                 </span>
               </div>
             </div>
@@ -314,6 +325,30 @@ export const FloatingAiCopilot = () => {
                   }}
                 >
                   {m.text}
+
+                  {m.tools_used && m.tools_used.length > 0 && (
+                    <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {m.tools_used.map((tool, ti) => (
+                        <span
+                          key={ti}
+                          style={{
+                            fontSize: '0.68rem',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            background: 'rgba(124, 92, 255, 0.1)',
+                            color: '#7c5cff',
+                            fontWeight: 600,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}
+                        >
+                          <Wrench size={10} /> {tool}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   {m.recommendation && (
                     <div
                       style={{
@@ -353,6 +388,43 @@ export const FloatingAiCopilot = () => {
                 )}
               </div>
             ))}
+
+            {/* Loading Indicator */}
+            {isLoading && (
+              <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-start', maxWidth: '85%' }}>
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: 'var(--bg-card-dark)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}
+                >
+                  <Bot size={15} color="#c084fc" />
+                </div>
+                <div
+                  style={{
+                    background: '#f1f4fb',
+                    color: 'var(--text-muted)',
+                    padding: '10px 14px',
+                    borderRadius: '16px',
+                    fontSize: '0.825rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    borderBottomLeftRadius: '4px'
+                  }}
+                >
+                  <Loader2 size={14} className="spin" style={{ animation: 'spin 1s linear infinite' }} />
+                  Analyzing financial data with Groq tools...
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Prompts Row */}
@@ -370,6 +442,7 @@ export const FloatingAiCopilot = () => {
               <button
                 key={i}
                 onClick={() => handleSend(qp)}
+                disabled={isLoading}
                 style={{
                   flexShrink: 0,
                   fontSize: '0.72rem',
@@ -379,10 +452,11 @@ export const FloatingAiCopilot = () => {
                   border: '1px solid #dce0ee',
                   color: 'var(--text-dark)',
                   fontWeight: 600,
-                  cursor: 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
+                  opacity: isLoading ? 0.6 : 1,
                   transition: 'all 0.15s ease'
                 }}
               >
@@ -411,6 +485,7 @@ export const FloatingAiCopilot = () => {
               placeholder="Ask your AI Financial Copilot..."
               value={inputQuery}
               onChange={e => setInputQuery(e.target.value)}
+              disabled={isLoading}
               style={{
                 fontSize: '0.825rem',
                 borderRadius: 'var(--radius-pill)',
@@ -425,11 +500,13 @@ export const FloatingAiCopilot = () => {
             <button
               type="submit"
               className="btn-pill-dark"
+              disabled={isLoading || !inputQuery.trim()}
               style={{
                 padding: '0 16px',
                 height: '38px',
                 borderRadius: 'var(--radius-pill)',
-                flexShrink: 0
+                flexShrink: 0,
+                opacity: (isLoading || !inputQuery.trim()) ? 0.6 : 1
               }}
             >
               <Send size={14} />

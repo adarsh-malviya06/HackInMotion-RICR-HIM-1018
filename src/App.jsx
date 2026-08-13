@@ -26,9 +26,13 @@ const MainLayout = () => {
 
   React.useEffect(() => {
     if (isAuthenticated && user) {
-      fetchUserFinancialData();
+      if (typeof fetchUserFinancialData === 'function') {
+        fetchUserFinancialData();
+      }
     } else if (!isAuthenticated && !loading) {
-      clearAllData();
+      if (typeof clearAllData === 'function') {
+        clearAllData();
+      }
     }
   }, [user?.id, isAuthenticated, loading, fetchUserFinancialData, clearAllData]);
 
