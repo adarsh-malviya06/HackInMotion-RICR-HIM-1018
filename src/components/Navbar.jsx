@@ -14,7 +14,7 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
     }
   };
 
-  const navLinks = [
+  const appNavLinks = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'ingestion', label: 'Ingestion' },
     { id: 'data-intelligence', label: 'Data Cleaning' },
@@ -24,19 +24,21 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
     { id: 'simulator', label: 'Simulator' }
   ];
 
+  const landingNavLinks = [
+    { id: 'features', label: 'Features' },
+    { id: 'how-it-works', label: 'How It Works' },
+    { id: 'intelligence', label: 'Intelligence' }
+  ];
+
+  const currentNavLinks = isAuthenticated ? appNavLinks : landingNavLinks;
+
   const handleNavClick = (linkId) => {
     if (isAuthenticated) {
       setActiveTab(linkId);
     } else {
-      if (linkId === 'financial-intelligence') {
-        const el = document.querySelector('#intelligence');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-          return;
-        }
-      }
-      if (onNavigateToLogin) {
-        onNavigateToLogin();
+      const el = document.getElementById(linkId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
       }
     }
   };
@@ -79,7 +81,7 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
         </span>
       </div>
 
-      {/* Center Navigation: Original Workspace Product Modules */}
+      {/* Center Navigation */}
       <nav style={{
         display: 'flex',
         alignItems: 'center',
@@ -91,7 +93,7 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
         overflowX: 'auto',
         whiteSpace: 'nowrap'
       }}>
-        {navLinks.map(link => {
+        {currentNavLinks.map(link => {
           const isActive = isAuthenticated && activeTab === link.id;
           return (
             <button
@@ -99,12 +101,12 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
               onClick={() => handleNavClick(link.id)}
               style={{
                 background: isActive ? 'var(--bg-card-dark)' : 'transparent',
-                color: isActive ? '#ffffff' : 'var(--text-muted)',
+                color: isActive ? '#ffffff' : 'var(--text-dark)',
                 border: 'none',
-                padding: '6px 14px',
+                padding: '6px 16px',
                 borderRadius: 'var(--radius-pill)',
-                fontSize: '0.825rem',
-                fontWeight: isActive ? 700 : 500,
+                fontSize: '0.85rem',
+                fontWeight: isActive ? 700 : 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 display: 'inline-flex',
@@ -113,7 +115,6 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
                 flexShrink: 0
               }}
             >
-              {link.highlight && <Sparkles size={11} color={isActive ? '#c084fc' : 'var(--accent-purple)'} />}
               {link.label}
             </button>
           );
