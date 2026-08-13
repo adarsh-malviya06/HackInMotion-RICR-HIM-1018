@@ -41,8 +41,7 @@ export const Sidebar = () => {
       badgeColor: 'cyan'
     },
     { id: 'planning', label: 'Financial Planning', icon: Target },
-    { id: 'simulator', label: 'What-If Simulator', icon: Sliders },
-    { id: 'copilot', label: 'AI Financial Copilot', icon: Bot, highlight: true }
+    { id: 'simulator', label: 'What-If Simulator', icon: Sliders }
   ];
 
   return (
