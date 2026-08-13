@@ -1,6 +1,49 @@
-// AI Financial Copilot Natural Language Query & Insights Processor
+/**
+ * AI Financial Copilot Client Service
+ * Routes queries to backend Groq Agent API (/api/agent/chat) with local fallback capability.
+ */
 
-export const processCopilotQuery = (query, contextData) => {
+export const processCopilotQueryAsync = async (query, contextData, history = []) => {
+  try {
+    const response = await fetch('/api/agent/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: query,
+        context: {
+          transactions: contextData.transactions || [],
+          budgets: contextData.budgets || [],
+          goals: contextData.goals || [],
+          recurring: contextData.recurring || [],
+          healthScore: contextData.healthScore || {},
+          currency: contextData.currency || '$'
+        },
+        history
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.answer) {
+        return {
+          answer: data.answer,
+          tools_used: data.tools_used || [],
+          grounded: true
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('Backend Agent Server request failed, switching to local calculation engine fallback:', error.message);
+  }
+
+  // Local fallback execution engine if backend endpoint is unreachable
+  return processCopilotQueryLocal(query, contextData);
+};
+
+// Synchronous local fallback engine
+export const processCopilotQueryLocal = (query, contextData) => {
   const { transactions = [], budgets = [], goals = [], recurring = [], healthScore = {}, currency = '$' } = contextData;
   const q = query.toLowerCase().trim();
 
@@ -14,12 +57,11 @@ export const processCopilotQuery = (query, contextData) => {
 
   const netSavings = totalIncome - totalExpenses;
 
-  // 1. Where am I spending the most / Category breakdown
+  // Top spending categories
   if (q.includes('where') || q.includes('spending most') || q.includes('biggest expense') || q.includes('top category')) {
     if (!transactions.length) {
       return {
-        answer: `I don't see any transactions in your database yet. Upload a CSV file or add entries to analyze your top spending categories.`,
-        action: 'ingest'
+        answer: `I don't see any transactions in your database yet. Upload a CSV file or add entries to analyze your top spending categories.`
       };
     }
 
@@ -50,7 +92,7 @@ export const processCopilotQuery = (query, contextData) => {
     };
   }
 
-  // 2. Health score query
+  // Health score query
   if (q.includes('health') || q.includes('score') || q.includes('financial status')) {
     const score = healthScore.score || 50;
     const grade = healthScore.grade || 'C';
@@ -66,7 +108,7 @@ export const processCopilotQuery = (query, contextData) => {
     return { answer };
   }
 
-  // 3. Money Leaks / Subscriptions query
+  // Money Leaks / Subscriptions query
   if (q.includes('leak') || q.includes('subscription') || q.includes('recurring') || q.includes('waste')) {
     const subTotal = recurring.reduce((sum, r) => sum + Number(r.amount), 0);
     let answer = `I've analyzed your recurring expenses and subscriptions.\n\n`;
@@ -78,7 +120,7 @@ export const processCopilotQuery = (query, contextData) => {
       recurring.forEach(r => {
         answer += `• ${r.merchant}: ${currency}${Number(r.amount).toFixed(2)} (${r.billing_cycle || 'Monthly'})\n`;
       });
-      answer += `\n*Tip: You can simulate cutting any subscription in the Subscriptions module to view instant projected savings.*`;
+      answer += `\n*Recurring payment detected — consider reviewing whether you still use it.*`;
     } else {
       answer += `No recurring subscriptions detected yet. When you upload transactions, recurring items will automatically be flagged.`;
     }
@@ -86,7 +128,7 @@ export const processCopilotQuery = (query, contextData) => {
     return { answer };
   }
 
-  // 4. Save more money / Reach goal / Savings simulation
+  // Save more money / Reach goal / Savings simulation
   if (q.includes('save') || q.includes('goal') || q.includes('cut') || q.includes('simulate')) {
     const potentialSubSavings = recurring.slice(0, 2).reduce((s, r) => s + Number(r.amount), 0);
     const estimatedMonthlyCut = 150 + potentialSubSavings;
@@ -108,4 +150,8 @@ export const processCopilotQuery = (query, contextData) => {
   answer += `Feel free to ask me specifically about top spending, health score, money leaks, or how to reach your savings goals!`;
 
   return { answer };
+};
+
+export const processCopilotQuery = (query, contextData) => {
+  return processCopilotQueryLocal(query, contextData);
 };

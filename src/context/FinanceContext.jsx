@@ -323,7 +323,8 @@ export const FinanceProvider = ({ children }) => {
       addGoal,
       depositToGoal,
       clearAllData,
-      fetchSupabaseData
+      fetchSupabaseData,
+      fetchUserFinancialData: fetchSupabaseData
     }}>
       {children}
     </FinanceContext.Provider>
