@@ -59,7 +59,7 @@ export const FloatingAiCopilot = () => {
       };
 
       setMessages(prev => [...prev, botMsg]);
-    } catch (_err) {
+    } catch (err) {
       setMessages(prev => [...prev, {
         sender: 'bot',
         text: "I couldn't retrieve your financial data right now. Please try again."

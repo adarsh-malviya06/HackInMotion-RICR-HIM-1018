@@ -45,7 +45,7 @@ export const detect_subscriptions = (context) => {
 };
 
 export const get_recurring_payments = (context) => {
-  const { recurring = [], currency = '$' } = context;
+  const { recurring = [], transactions = [], currency = '$' } = context;
 
   if (recurring.length > 0) {
     const total = recurring.reduce((sum, r) => sum + Number(r.amount || 0), 0);

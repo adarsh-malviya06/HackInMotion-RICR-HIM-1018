@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         return data;
       }
     }
+    // Local demo login fallback
     setUser({ id: 'demo_user', email, name: email.split('@')[0] });
     setIsAuthenticated(true);
     return { user: { email } };

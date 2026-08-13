@@ -3,7 +3,10 @@ import { useFinance } from '../context/FinanceContext';
 import { Database, Copy, Check, X, ShieldCheck } from 'lucide-react';
 
 export const SettingsModal = ({ isOpen, onClose }) => {
-  const { supabaseConfig, updateSupabaseCredentials, showToast } = useFinance();
+  const finance = useFinance() || {};
+  const supabaseConfig = finance.supabaseConfig || {};
+  const updateSupabaseCredentials = finance.updateSupabaseCredentials || (() => {});
+  const showToast = finance.showToast || (() => {});
   const [url, setUrl] = useState(supabaseConfig.url || '');
   const [key, setKey] = useState(supabaseConfig.key || '');
   const [copied, setCopied] = useState(false);

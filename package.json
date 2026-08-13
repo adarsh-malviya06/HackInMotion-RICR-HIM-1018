@@ -5,15 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node backend/server.js",
+    "test": "node backend/test_financial_security_api.js",
+    "test:persistence": "node backend/test_phase4_persistence.js",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
+    "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "groq-sdk": "^0.15.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.31.0",
+    "mongoose": "^9.9.2",
     "papaparse": "^5.5.4",
     "react": "^19.2.8",
     "react-chartjs-2": "^5.3.1",
@@ -23,6 +34,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "mongodb-memory-server": "^11.2.0",
     "oxlint": "^1.75.0",
     "vite": "^8.2.0"
   }

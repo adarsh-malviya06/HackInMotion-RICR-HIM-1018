@@ -9,10 +9,15 @@ import {
   PieChart, 
   Bot, 
   CheckCircle2, 
+  Zap, 
+  Layers, 
+  Compass, 
+  DollarSign, 
   Activity 
 } from 'lucide-react';
+import { HeroSection } from './HeroSection';
 
-export const LandingPage = ({ onNavigateToRegister }) => {
+export const LandingPage = ({ onNavigateToRegister, onNavigateToLogin }) => {
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -98,150 +103,11 @@ export const LandingPage = ({ onNavigateToRegister }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '80px', paddingBottom: '60px' }}>
       {/* --- HERO SECTION --- */}
-      <section style={{ textAlign: 'center', maxWidth: '860px', margin: '20px auto 0 auto' }}>
-        {/* Product Pill Badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '6px 16px',
-          background: '#ffffff',
-          borderRadius: 'var(--radius-pill)',
-          border: '1px solid #dce0ee',
-          boxShadow: '0 2px 8px rgba(25, 23, 40, 0.05)',
-          marginBottom: '20px'
-        }}>
-          <Sparkles size={14} color="var(--accent-purple)" />
-          <span style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-            Intelligent Financial Workspace & AI Assistant
-          </span>
-        </div>
+      <HeroSection 
+        onNavigateToRegister={onNavigateToRegister} 
+        scrollToSection={scrollToSection} 
+      />
 
-        {/* Hero Headline */}
-        <h1 className="display-title" style={{
-          fontSize: '3rem',
-          fontWeight: 800,
-          lineHeight: 1.15,
-          color: 'var(--text-dark)',
-          marginBottom: '20px',
-          letterSpacing: '-0.03em'
-        }}>
-          Take Control of Your Money <br />
-          <span style={{
-            background: 'linear-gradient(135deg, #191728 0%, #7c5cff 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            Before It Controls You.
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{
-          fontSize: '1.1rem',
-          color: 'var(--text-muted)',
-          lineHeight: 1.6,
-          maxWidth: '680px',
-          margin: '0 auto 32px auto'
-        }}>
-          FINLY turns your financial data into clear insights, smarter planning, and actionable decisions — all in one intelligent workspace.
-        </p>
-
-        {/* Hero CTA Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <button
-            onClick={onNavigateToRegister}
-            className="btn-pill-dark"
-            style={{ padding: '14px 28px', fontSize: '0.95rem', fontWeight: 700 }}
-          >
-            Get Started <ArrowRight size={16} />
-          </button>
-
-          <button
-            onClick={() => scrollToSection('features')}
-            style={{
-              background: '#ffffff',
-              color: 'var(--text-dark)',
-              border: '1px solid #dce0ee',
-              borderRadius: 'var(--radius-pill)',
-              padding: '14px 26px',
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Explore Features
-          </button>
-        </div>
-
-        {/* --- PRODUCT PREVIEW CARD --- */}
-        <div className="card-white-clean" style={{
-          marginTop: '48px',
-          padding: '24px',
-          borderRadius: '24px',
-          boxShadow: '0 20px 50px rgba(25, 23, 40, 0.1), 0 2px 10px rgba(0, 0, 0, 0.03)',
-          border: '1px solid #dce0ee',
-          textAlign: 'left'
-        }}>
-          {/* Header row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981' }} />
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: '6px' }}>
-                FINLY Live Workspace Preview
-              </span>
-            </div>
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.1)',
-              color: '#059669',
-              padding: '4px 12px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              <Activity size={12} /> Health Score: 88 / 100
-            </div>
-          </div>
-
-          {/* Stats Row Mockup */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #edf0f8' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Total Balance</span>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-dark)', margin: '4px 0 0 0' }}>₹1,42,850</h3>
-            </div>
-            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #edf0f8' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Monthly Income</span>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669', margin: '4px 0 0 0' }}>+₹85,000</h3>
-            </div>
-            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #edf0f8' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Monthly Expenses</span>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#e11d48', margin: '4px 0 0 0' }}>-₹32,150</h3>
-            </div>
-          </div>
-
-          {/* AI Insight Pill */}
-          <div style={{
-            background: 'var(--bg-card-dark)',
-            color: '#ffffff',
-            padding: '12px 18px',
-            borderRadius: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            fontSize: '0.85rem'
-          }}>
-            <Sparkles size={16} color="#c084fc" style={{ flexShrink: 0 }} />
-            <span><strong>AI Insight:</strong> Dining out is 14% higher than last month. Setting a ₹5,000 limit could save ₹2,400 monthly.</span>
-          </div>
-        </div>
-      </section>
 
       {/* --- FEATURES SECTION --- */}
       <section id="features" style={{ maxWidth: '1100px', margin: '0 auto', width: '100%' }}>

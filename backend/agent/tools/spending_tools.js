@@ -45,6 +45,7 @@ export const compare_monthly_spending = (context) => {
     return { message: 'Insufficient transaction data to calculate monthly comparison.', currency };
   }
 
+  // Group expenses by YYYY-MM
   const monthMap = {};
   expenses.forEach(t => {
     const monthKey = t.date ? t.date.substring(0, 7) : 'Unknown';

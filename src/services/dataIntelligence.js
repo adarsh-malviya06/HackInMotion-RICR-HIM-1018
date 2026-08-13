@@ -163,7 +163,7 @@ export const calculateHealthScore = (transactions = [], budgets = [], monthlyInc
   const insights = [];
   if (savingsRate < 20) insights.push(`Your savings rate is ${savingsRate}%. Target at least 20% to build emergency cushion.`);
   if (subscriptionRatio > 15) insights.push(`Subscriptions consume ${subscriptionRatio}% of your expenses. Consider auditing unneeded recurring tools.`);
-  if (totalExpense > totalIncome) insights.push(`Warning: Total expenses exceed income by $${(totalExpense - totalIncome).toFixed(2)}.`);
+  if (totalExpense > totalIncome) insights.push(`Warning: Total expenses exceed income by ₹${(totalExpense - totalIncome).toFixed(2)}.`);
   if (insights.length === 0) insights.push(`Great job! You maintain a strong ${savingsRate}% savings rate with balanced spending.`);
 
   return {
@@ -208,7 +208,7 @@ export const detectAnomalies = (transactions = []) => {
     if (stats && stats.count >= 3 && amount > stats.avg * 2.5 && amount > 50) {
       anomalies.push({
         transaction: t,
-        reason: `Unusual amount: $${amount.toFixed(2)} is ${Math.round(amount / stats.avg)}x higher than category average ($${stats.avg.toFixed(2)})`,
+        reason: `Unusual amount: ₹${amount.toFixed(2)} is ${Math.round(amount / stats.avg)}x higher than category average (₹${stats.avg.toFixed(2)})`,
         severity: amount > stats.avg * 4 ? 'High' : 'Medium'
       });
     }
@@ -224,7 +224,7 @@ export const detectMoneyLeaks = (transactions = []) => {
 
   if (!expenses.length) return [];
 
-  // Micro-transaction frequency (Coffee, quick bites, small impulse purchases < $15)
+  // Micro-transaction frequency (Coffee, quick bites, small impulse purchases < ₹15)
   const microPurchases = expenses.filter(t => Number(t.amount) > 2 && Number(t.amount) <= 15);
   const microTotal = microPurchases.reduce((sum, t) => sum + Number(t.amount), 0);
 
@@ -235,7 +235,7 @@ export const detectMoneyLeaks = (transactions = []) => {
       type: 'Impulse / Daily Habits',
       count: microPurchases.length,
       monthlyImpact: microTotal,
-      description: `Found ${microPurchases.length} small purchases (under $15) adding up to $${microTotal.toFixed(2)}. Small daily expenses like coffee or fast snacks drain cash flow fast.`,
+      description: `Found ${microPurchases.length} small purchases (under ₹15) adding up to ₹${microTotal.toFixed(2)}. Small daily expenses like coffee or fast snacks drain cash flow fast.`,
       recommendation: 'Set a weekly cash allowance for micro-purchases to cap passive drain.',
       savingsPotential: Math.round(microTotal * 0.5)
     });
@@ -253,7 +253,7 @@ export const detectMoneyLeaks = (transactions = []) => {
       type: 'Convenience Premium',
       count: deliveryOps.length,
       monthlyImpact: deliveryTotal,
-      description: `${deliveryOps.length} food delivery transactions totaled $${deliveryTotal.toFixed(2)}. Delivery service fees and markups add 30-40% over dining in or picking up.`,
+      description: `${deliveryOps.length} food delivery transactions totaled ₹${deliveryTotal.toFixed(2)}. Delivery service fees and markups add 30-40% over dining in or picking up.`,
       recommendation: 'Switch 50% of food delivery orders to direct pickup.',
       savingsPotential: Math.round(deliveryTotal * 0.35)
     });
@@ -269,7 +269,7 @@ export const detectMoneyLeaks = (transactions = []) => {
       type: 'Recurring Commitments',
       count: subOps.length,
       monthlyImpact: subTotal,
-      description: `You have ${subOps.length} active software/media subscriptions burning $${subTotal.toFixed(2)} monthly ($${(subTotal * 12).toFixed(2)}/yr).`,
+      description: `You have ${subOps.length} active software/media subscriptions burning ₹${subTotal.toFixed(2)} monthly (₹${(subTotal * 12).toFixed(2)}/yr).`,
       recommendation: 'Rotate streaming services month-by-month instead of maintaining all concurrently.',
       savingsPotential: Math.round(subTotal * 0.4)
     });

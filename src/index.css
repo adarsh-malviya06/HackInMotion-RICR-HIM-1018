@@ -213,3 +213,187 @@ body {
   background: #c2c7d8;
   border-radius: var(--radius-pill);
 }
+
+/* --- FINLY Hero Redesign Layout & Styling --- */
+.hero-redesign-grid {
+  display: grid;
+  grid-template-columns: 38% 1fr;
+  gap: 40px;
+  align-items: flex-start;
+  position: relative;
+  width: 100%;
+}
+
+.hero-left-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  z-index: 2;
+}
+
+.hero-right-col {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+/* Background Soft Glow */
+.hero-glow-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.08) 0%, rgba(192, 132, 252, 0.04) 50%, rgba(240, 243, 250, 0) 75%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Card Themes & Container */
+.finly-command-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid #dce0ee;
+  box-shadow: 0 20px 50px rgba(25, 23, 40, 0.08), 0 4px 16px rgba(0, 0, 0, 0.02);
+  padding: 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.finly-command-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 60px rgba(25, 23, 40, 0.11), 0 8px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Donut Chart Visual */
+.donut-chart-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #7c5cff 0% 28%,
+    #3b82f6 28% 46%,
+    #f59e0b 46% 56%,
+    #10b981 56% 64%,
+    #c084fc 64% 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.donut-chart-center {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Micro Animations */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes floatDelay {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.floating-card-1 {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.floating-card-2 {
+  animation: floatDelay 6s ease-in-out 1s infinite;
+}
+
+.floating-card-3 {
+  animation: floatSlow 5.5s ease-in-out 2s infinite;
+}
+
+.glass-floating-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(220, 224, 238, 0.9);
+  box-shadow: 0 12px 32px rgba(25, 23, 40, 0.12), 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-floating-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 16px 40px rgba(25, 23, 40, 0.16);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1080px) {
+  .hero-redesign-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .hero-left-col {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-trust-highlights {
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .finly-command-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .floating-card-container-mobile {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin-top: 16px !important;
+  }
+
+  .hero-trust-highlights {
+    flex-direction: column;
+  }
+}
+
+

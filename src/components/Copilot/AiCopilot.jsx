@@ -17,7 +17,7 @@ export const AiCopilot = () => {
     "Where am I spending the most money?",
     "Explain my Financial Health Score",
     "Find all my subscriptions & money leaks",
-    "How can I save $500 this month?"
+    "How can I save ₹500 this month?"
   ];
 
   const handleSend = (textToSend = inputQuery) => {

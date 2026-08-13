@@ -17,6 +17,7 @@ export const simulate_savings = (context, { category = 'Food & Dining', reductio
       /food|delivery|doordash|ubereats|zomato|swiggy|restaurant/i.test(`${t.category} ${t.merchant}`)
     );
     baseMonthlySpend = catExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    // If dataset has no explicit category match, default to a standard reference calculation or total expense sample
     if (baseMonthlySpend === 0 && expenses.length > 0) {
       baseMonthlySpend = expenses.reduce((sum, t) => sum + Number(t.amount || 0), 0) * 0.25;
     }
@@ -26,6 +27,7 @@ export const simulate_savings = (context, { category = 'Food & Dining', reductio
   const monthlySavings = baseMonthlySpend * (reductionPct / 100);
   const annualSavings = monthlySavings * 12;
 
+  // Impact on primary savings goal if available
   let goalImpact = null;
   if (goals.length > 0) {
     const primaryGoal = goals[0];

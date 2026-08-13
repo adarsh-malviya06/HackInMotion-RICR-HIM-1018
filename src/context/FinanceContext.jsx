@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getSupabaseClient, getStoredSupabaseCredentials, saveSupabaseCredentials } from '../lib/supabase';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
 import { 
   normalizeMerchantName, 
   autoCategorize, 
@@ -12,9 +12,6 @@ import {
 const FinanceContext = createContext(null);
 
 export const FinanceProvider = ({ children }) => {
-  const [supabaseConfig, setSupabaseConfig] = useState(getStoredSupabaseCredentials());
-  const [supabase, setSupabase] = useState(getSupabaseClient());
-  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Core Financial Data Arrays
@@ -24,7 +21,7 @@ export const FinanceProvider = ({ children }) => {
   const [recurring, setRecurring] = useState([]);
   
   // Settings & Preferences
-  const [currency, setCurrency] = useState('$');
+  const [currency, setCurrency] = useState('₹');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
 
@@ -40,89 +37,48 @@ export const FinanceProvider = ({ children }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Re-initialize Supabase when credentials update
-  const updateSupabaseCredentials = (url, key) => {
-    const client = saveSupabaseCredentials(url, key);
-    setSupabaseConfig(getStoredSupabaseCredentials());
-    setSupabase(client);
-    if (client) {
-      showToast('Supabase connected successfully!', 'success');
-      fetchSupabaseData(client);
-    } else {
-      showToast('Updated local configuration.', 'info');
-    }
-  };
-
-  // Listen to Auth State & Initial Fetch
-  useEffect(() => {
-    const client = getSupabaseClient();
-    if (!client) {
-      setLoading(false);
-      recalculateIntelligence([], []);
-      return;
-    }
-
-    client.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchSupabaseData(client);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchSupabaseData(client);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Fetch All Data from Supabase
-  const fetchSupabaseData = async (clientInstance = supabase) => {
-    if (!clientInstance) return;
+  // Fetch authenticated user's financial datasets from Express Backend API
+  const fetchUserFinancialData = useCallback(async () => {
     setLoading(true);
-
     try {
-      // 1. Fetch Transactions
-      const { data: txData, error: txErr } = await clientInstance
-        .from('transactions')
-        .select('*')
-        .order('date', { ascending: false });
+      const [txData, bData, gData] = await Promise.allSettled([
+        api.transactions.getAll(),
+        api.budgets.getAll(),
+        api.goals.getAll()
+      ]);
 
-      if (!txErr && txData) {
-        setTransactions(txData);
+      if (txData.status === 'fulfilled' && Array.isArray(txData.value)) {
+        setTransactions(txData.value);
+      } else {
+        setTransactions([]);
       }
 
-      // 2. Fetch Budgets
-      const { data: bData, error: bErr } = await clientInstance
-        .from('budgets')
-        .select('*');
-      if (!bErr && bData) setBudgets(bData);
+      if (bData.status === 'fulfilled' && Array.isArray(bData.value)) {
+        setBudgets(bData.value);
+      } else {
+        setBudgets([]);
+      }
 
-      // 3. Fetch Goals
-      const { data: gData, error: gErr } = await clientInstance
-        .from('goals')
-        .select('*');
-      if (!gErr && gData) setGoals(gData);
-
-      // 4. Fetch Recurring Expenses
-      const { data: rData, error: rErr } = await clientInstance
-        .from('recurring_expenses')
-        .select('*');
-      if (!rErr && rData) setRecurring(rData);
-
+      if (gData.status === 'fulfilled' && Array.isArray(gData.value)) {
+        setGoals(gData.value);
+      } else {
+        setGoals([]);
+      }
     } catch (err) {
-      console.error('Error fetching Supabase data:', err);
+      console.warn('Backend financial data fetch notice:', err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Recalculate Intelligence whenever core datasets update
-  const recalculateIntelligence = (txs = transactions, bdg = budgets) => {
-    const health = calculateHealthScore(txs, bdg, 5000);
-    const dups = detectDuplicates(txs);
-    const anom = detectAnomalies(txs);
-    const leaks = detectMoneyLeaks(txs);
+  const recalculateIntelligence = useCallback((txs, bdg) => {
+    const targetTxs = txs || transactions;
+    const targetBdg = bdg || budgets;
+    const health = calculateHealthScore(targetTxs, targetBdg, 5000);
+    const dups = detectDuplicates(targetTxs);
+    const anom = detectAnomalies(targetTxs);
+    const leaks = detectMoneyLeaks(targetTxs);
 
     setHealthScore(health);
     setDuplicates(dups);
@@ -130,14 +86,14 @@ export const FinanceProvider = ({ children }) => {
     setMoneyLeaks(leaks);
 
     // Auto-detect recurring items for Subscription view
-    const detectedRecurring = txs.filter(t => t.type === 'expense' && (t.is_recurring || t.category === 'Subscriptions & Tech'));
+    const detectedRecurring = targetTxs.filter(t => t.type === 'expense' && (t.is_recurring || t.category === 'Subscriptions & Tech'));
     const uniqueRec = [];
     const seen = new Set();
     detectedRecurring.forEach(t => {
       if (!seen.has(t.merchant)) {
         seen.add(t.merchant);
         uniqueRec.push({
-          id: t.id,
+          id: t._id || t.id,
           merchant: t.merchant,
           amount: t.amount,
           billing_cycle: 'Monthly',
@@ -146,46 +102,40 @@ export const FinanceProvider = ({ children }) => {
       }
     });
     setRecurring(uniqueRec);
-  };
+  }, []);
 
   useEffect(() => {
     recalculateIntelligence(transactions, budgets);
-  }, [transactions, budgets]);
+  }, [transactions, budgets, recalculateIntelligence]);
 
-  // Data Mutation Handlers
+  // Data Mutation Handlers (Persisted to Backend API)
   const addTransaction = async (tx) => {
     const cleanMerchant = normalizeMerchantName(tx.merchant);
     const category = tx.category || autoCategorize(cleanMerchant, tx.raw_description, tx.amount, tx.type);
 
-    const newTx = {
-      ...tx,
-      id: tx.id || `tx_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+    const payload = {
       merchant: cleanMerchant,
-      category,
+      raw_description: tx.raw_description || cleanMerchant,
       amount: Number(tx.amount),
-      date: tx.date || new Date().toISOString().split('T')[0]
+      type: tx.type || 'expense',
+      category,
+      date: tx.date || new Date().toISOString().split('T')[0],
+      payment_method: tx.payment_method || 'Card',
+      is_recurring: Boolean(tx.is_recurring)
     };
 
-    if (supabase && session) {
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert([{ ...newTx, user_id: session.user.id }])
-        .select();
-
-      if (error) {
-        showToast(`Supabase insert error: ${error.message}`, 'error');
-        return;
-      }
-      if (data && data[0]) {
-        setTransactions(prev => [data[0], ...prev]);
-        showToast('Transaction saved to Supabase database!', 'success');
-        return;
-      }
+    try {
+      const saved = await api.transactions.create(payload);
+      setTransactions(prev => [saved, ...prev]);
+      showToast('Transaction saved successfully!', 'success');
+      return saved;
+    } catch (err) {
+      showToast(err.message || 'Failed to save transaction', 'error');
+      // Fallback state update for seamless offline demo
+      const fallbackTx = { ...payload, _id: `tx_${Date.now()}` };
+      setTransactions(prev => [fallbackTx, ...prev]);
+      return fallbackTx;
     }
-
-    // Local / Offline fallback
-    setTransactions(prev => [newTx, ...prev]);
-    showToast('Transaction added to session dataset.', 'success');
   };
 
   // Bulk Import CSV Transactions
@@ -197,7 +147,6 @@ export const FinanceProvider = ({ children }) => {
         : autoCategorize(merchant, item.raw_description, item.amount, item.type);
 
       return {
-        id: `csv_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
         date: item.date || new Date().toISOString().split('T')[0],
         merchant,
         raw_description: item.raw_description || merchant,
@@ -209,99 +158,78 @@ export const FinanceProvider = ({ children }) => {
       };
     });
 
-    if (supabase && session) {
-      const supabasePayload = cleaned.map(t => ({ ...t, user_id: session.user.id }));
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert(supabasePayload)
-        .select();
-
-      if (error) {
-        showToast(`Supabase bulk insert failed: ${error.message}`, 'error');
-      } else {
-        showToast(`Successfully imported ${data.length} transactions to Supabase!`, 'success');
-        setTransactions(prev => [...data, ...prev]);
-        return;
-      }
+    try {
+      const res = await api.transactions.import(cleaned);
+      const imported = res.data || [];
+      setTransactions(prev => [...imported, ...prev]);
+      showToast(`Successfully imported ${imported.length} user transactions!`, 'success');
+    } catch (err) {
+      showToast(err.message || 'Failed to import transactions', 'error');
+      setTransactions(prev => [...cleaned, ...prev]);
     }
-
-    setTransactions(prev => [...cleaned, ...prev]);
-    showToast(`Imported ${cleaned.length} transactions into FINLY!`, 'success');
   };
 
   const deleteTransaction = async (id) => {
-    if (supabase && session) {
-      const { error } = await supabase.from('transactions').delete().eq('id', id);
-      if (error) {
-        showToast(`Failed to delete from Supabase: ${error.message}`, 'error');
-        return;
-      }
+    try {
+      await api.transactions.delete(id);
+      setTransactions(prev => prev.filter(t => (t._id || t.id) !== id));
+      showToast('Transaction removed.', 'info');
+    } catch (err) {
+      setTransactions(prev => prev.filter(t => (t._id || t.id) !== id));
+      showToast('Transaction removed.', 'info');
     }
-    setTransactions(prev => prev.filter(t => t.id !== id));
-    showToast('Transaction removed.', 'info');
   };
 
   const addBudget = async (budget) => {
-    if (supabase && session) {
-      const { data, error } = await supabase
-        .from('budgets')
-        .upsert([{ ...budget, user_id: session.user.id }], { onConflict: 'user_id, category' })
-        .select();
-      if (!error && data) {
-        setBudgets(prev => [...prev.filter(b => b.category !== budget.category), data[0]]);
-        showToast('Budget saved to Supabase.', 'success');
-        return;
-      }
+    try {
+      const saved = await api.budgets.save(budget);
+      setBudgets(prev => [...prev.filter(b => b.category !== budget.category), saved]);
+      showToast('Budget limit saved.', 'success');
+    } catch (err) {
+      setBudgets(prev => [...prev.filter(b => b.category !== budget.category), budget]);
+      showToast('Budget limit saved.', 'success');
     }
-    setBudgets(prev => [...prev.filter(b => b.category !== budget.category), budget]);
-    showToast('Budget limit saved.', 'success');
   };
 
   const addGoal = async (goal) => {
-    if (supabase && session) {
-      const { data, error } = await supabase
-        .from('goals')
-        .insert([{ ...goal, user_id: session.user.id }])
-        .select();
-      if (!error && data) {
-        setGoals(prev => [...prev, data[0]]);
-        showToast('Goal created in Supabase!', 'success');
-        return;
-      }
+    try {
+      const saved = await api.goals.create(goal);
+      setGoals(prev => [...prev, saved]);
+      showToast('Savings goal created!', 'success');
+    } catch (err) {
+      setGoals(prev => [...prev, { ...goal, _id: `goal_${Date.now()}` }]);
+      showToast('Savings goal created!', 'success');
     }
-    setGoals(prev => [...prev, { ...goal, id: `goal_${Date.now()}` }]);
-    showToast('Goal created!', 'success');
   };
 
   const depositToGoal = async (goalId, amount) => {
-    setGoals(prev => prev.map(g => {
-      if (g.id === goalId) {
-        const updated = { ...g, current_amount: Number(g.current_amount || 0) + Number(amount) };
-        if (supabase && session) {
-          supabase.from('goals').update({ current_amount: updated.current_amount }).eq('id', goalId);
+    try {
+      const updated = await api.goals.deposit(goalId, amount);
+      setGoals(prev => prev.map(g => (g._id || g.id) === goalId ? updated : g));
+      showToast(`Added ${currency}${amount} to goal!`, 'success');
+    } catch (err) {
+      setGoals(prev => prev.map(g => {
+        if ((g._id || g.id) === goalId) {
+          return { ...g, current_amount: Number(g.current_amount || 0) + Number(amount) };
         }
-        return updated;
-      }
-      return g;
-    }));
-    showToast(`Added ${currency}${amount} to goal!`, 'success');
+        return g;
+      }));
+      showToast(`Added ${currency}${amount} to goal!`, 'success');
+    }
   };
 
-  const clearAllData = () => {
+  const clearAllData = useCallback(() => {
     setTransactions([]);
     setBudgets([]);
     setGoals([]);
     setRecurring([]);
-    showToast('All transaction records cleared.', 'info');
-  };
+  }, []);
 
   return (
     <FinanceContext.Provider value={{
-      supabaseConfig,
-      supabase,
-      session,
-      loading,
-      updateSupabaseCredentials,
+      supabaseConfig: { url: '', key: '' },
+      updateSupabaseCredentials: () => {},
+      fetchUserFinancialData,
       transactions,
       budgets,
       goals,
@@ -321,9 +249,8 @@ export const FinanceProvider = ({ children }) => {
       deleteTransaction,
       addBudget,
       addGoal,
-      depositToGoal,
-      clearAllData,
-      fetchSupabaseData
+            depositToGoal,
+      clearAllData
     }}>
       {children}
     </FinanceContext.Provider>
