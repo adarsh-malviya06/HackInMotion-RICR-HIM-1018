@@ -112,8 +112,10 @@ export const calculateHealthScore = (transactions = [], budgets = [], monthlyInc
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
-  // If no explicit income logged, default to monthly target for estimation
-  if (totalIncome === 0) totalIncome = Number(monthlyIncomeTarget) || 5000;
+  // If no explicit income logged, dynamically estimate baseline from expense volume
+  if (totalIncome === 0) {
+    totalIncome = totalExpense > 0 ? Math.max(totalExpense * 1.2, Number(monthlyIncomeTarget) || 3000) : (Number(monthlyIncomeTarget) || 3000);
+  }
 
   const netSavings = Math.max(0, totalIncome - totalExpense);
   const savingsRate = Math.min(100, Math.round((netSavings / totalIncome) * 100));
