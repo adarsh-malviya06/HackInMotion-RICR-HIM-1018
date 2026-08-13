@@ -48,7 +48,7 @@ function makeRequest(options, postData = null, cookie = null) {
 
 async function runPhase4Tests() {
   console.log('==================================================');
-  console.log(' FINLY Phase 4 Persistent Data & Multi-User Test');
+  console.log(' Finova Phase 4 Persistent Data & Multi-User Test');
   console.log('==================================================\n');
 
   try {

@@ -69,7 +69,7 @@ CREATE POLICY "Users can insert own transactions" ON public.transactions FOR INS
             <Database size={24} color="var(--primary-light)" />
             <div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Supabase Integration Settings</h2>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Connect FINLY directly to your Supabase project</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Connect Finova directly to your Supabase project</p>
             </div>
           </div>
           <button onClick={onClose} className="btn btn-secondary btn-icon"><X size={18} /></button>

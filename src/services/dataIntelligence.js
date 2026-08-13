@@ -1,4 +1,4 @@
-// Data Intelligence & Algorithmic Cleaning Engine for FINLY
+// Data Intelligence & Algorithmic Cleaning Engine for Finova
 
 // 1. Merchant Normalization Map & Regex Cleaners
 const MERCHANT_PATTERNS = [

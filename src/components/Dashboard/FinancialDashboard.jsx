@@ -227,7 +227,7 @@ export const FinancialDashboard = () => {
                 color: '#c084fc',
                 marginBottom: '14px'
               }}>
-                <Sparkles size={13} /> Getting Started with FINLY
+                <Sparkles size={13} /> Getting Started with Finova
               </div>
               <h2 className="display-title" style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>
                 Your financial workspace is ready
@@ -246,10 +246,10 @@ export const FinancialDashboard = () => {
             </div>
           </div>
 
-          {/* Your FINLY Toolkit Section */}
+          {/* Your Finova Toolkit Section */}
           <div>
             <h3 className="display-title" style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '16px' }}>
-              Your FINLY Workspace Toolkit
+              Your Finova Workspace Toolkit
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
               {toolkit.map((item) => (

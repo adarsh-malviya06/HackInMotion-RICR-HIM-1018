@@ -47,7 +47,7 @@ app.use(cookieParser());
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
-    message: 'FINLY Backend & AI Agent Running',
+    message: 'Finova Backend & AI Agent Running',
     groq_configured: Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim() !== '')
   });
 });
@@ -116,10 +116,10 @@ async function startServer() {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`[FINLY Server] Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+      console.log(`[Finova Server] Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
   } catch (err) {
-    console.error(`[FINLY Server Fatal] Server failed to start due to database connection failure.`);
+    console.error(`[Finova Server Fatal] Server failed to start due to database connection failure.`);
     process.exit(1);
   }
 }

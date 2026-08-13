@@ -1,5 +1,5 @@
 -- ==========================================
--- FINLY - Supabase Database Schema
+-- Finova - Supabase Database Schema
 -- Paste this script into your Supabase SQL Editor
 -- ==========================================
 

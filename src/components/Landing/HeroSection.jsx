@@ -187,7 +187,7 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
           </div>
         </div>
 
-        {/* ==================== RIGHT HERO COLUMN: FINLY COMMAND CENTER ==================== */}
+        {/* ==================== RIGHT HERO COLUMN: FINOVA COMMAND CENTER ==================== */}
         <div className="hero-right-col">
           {/* FLOATING CARD 1: AI Insight (Top Right) */}
           <div className="floating-card-1 glass-floating-card floating-card-container-mobile" style={{
@@ -225,8 +225,8 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
             </div>
           </div>
 
-          {/* MAIN FINLY COMMAND CENTER DASHBOARD CARD */}
-          <div className="finly-command-card">
+          {/* MAIN FINOVA COMMAND CENTER DASHBOARD CARD */}
+          <div className="finova-command-card">
             {/* Card Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>

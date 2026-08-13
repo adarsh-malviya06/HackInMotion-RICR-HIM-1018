@@ -68,7 +68,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {isSignUp ? 'Sign up for FINLY Supabase Sync' : 'Sign in to access your financial database'}
+              {isSignUp ? 'Sign up for Finova Supabase Sync' : 'Sign in to access your financial database'}
             </p>
           </div>
           <button onClick={onClose} className="btn btn-secondary btn-icon"><X size={18} /></button>

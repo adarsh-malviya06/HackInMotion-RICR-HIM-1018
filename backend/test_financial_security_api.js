@@ -48,7 +48,7 @@ function makeRequest(options, postData = null, cookie = null) {
 
 async function runSecurityTests() {
   console.log('==================================================');
-  console.log(' FINLY Phase 3 User Data Security & Isolation Test');
+  console.log(' Finova Phase 3 User Data Security & Isolation Test');
   console.log('==================================================\n');
 
   try {
