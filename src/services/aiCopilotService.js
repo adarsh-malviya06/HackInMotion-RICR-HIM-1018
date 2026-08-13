@@ -70,10 +70,12 @@ export const processCopilotQueryLocal = (query, contextData) => {
     const sliceList = transactions.slice(0, limit);
 
     let answer = `Here are the first **${sliceList.length}** transactions from your database (Total: **${transactions.length}**):\n\n`;
+    answer += `| # | Date | Merchant | Category | Type | Amount |\n`;
+    answer += `|---|---|---|---|---|---|\n`;
     sliceList.forEach((t, idx) => {
       const amtStr = `${currency}${Number(t.amount || 0).toFixed(2)}`;
-      const typeBadge = t.type === 'income' ? '🟢 Inflow' : '🔴 Outflow';
-      answer += `${idx + 1}. **${t.merchant || 'Merchant'}** — ${amtStr} (${t.category || 'Category'}) • *${t.date || 'N/A'}* [${typeBadge}]\n`;
+      const typeBadge = t.type === 'income' ? '🟢 Income' : '🔴 Expense';
+      answer += `| ${idx + 1} | ${t.date || 'N/A'} | **${t.merchant || 'Merchant'}** | ${t.category || 'Category'} | ${typeBadge} | **${amtStr}** |\n`;
     });
 
     return { answer };

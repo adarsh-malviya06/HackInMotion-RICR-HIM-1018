@@ -134,9 +134,11 @@ function handleDeterministicFallback(query, userContext, apiErrorMessage = null)
   if (toolName === 'get_recent_transactions') {
     if (result.transactions && result.transactions.length > 0) {
       answerText = `Here are the first **${result.transactions.length}** transactions from your database (Total: **${result.total_matching_transactions}**):\n\n`;
+      answerText += `| # | Date | Merchant | Category | Type | Amount |\n`;
+      answerText += `|---|---|---|---|---|---|\n`;
       result.transactions.forEach(t => {
-        const typeBadge = t.type === 'income' ? '🟢 Inflow' : '🔴 Outflow';
-        answerText += `${t.index}. **${t.merchant}** — ${t.amount} (${t.category}) • *${t.date}* [${typeBadge}]\n`;
+        const typeBadge = t.type === 'income' ? '🟢 Income' : '🔴 Expense';
+        answerText += `| ${t.index} | ${t.date} | **${t.merchant}** | ${t.category} | ${typeBadge} | **${t.amount}** |\n`;
       });
     } else {
       answerText = `No transactions found in your database. Upload a CSV statement or add entries manually to view them.`;
