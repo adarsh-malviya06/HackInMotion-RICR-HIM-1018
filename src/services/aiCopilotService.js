@@ -42,7 +42,6 @@ export const processCopilotQueryAsync = async (
 
     if (response.ok) {
       const data = await response.json();
-
       if (data.success && data.answer) {
         return {
           answer: data.answer,
@@ -52,31 +51,16 @@ export const processCopilotQueryAsync = async (
       }
     }
   } catch (error) {
-    console.warn(
-      'Backend Agent Server request failed, switching to local calculation engine fallback:',
-      error.message
-    );
+    console.warn('Backend Agent Server request failed, switching to local calculation engine fallback:', error.message);
   }
 
-  // Fallback to local calculation engine
+  // Local fallback execution engine if backend endpoint is unreachable
   return processCopilotQueryLocal(query, contextData);
 };
 
-
-// ============================================================
-// LOCAL FALLBACK ENGINE
-// ============================================================
-
+// Synchronous local fallback engine
 export const processCopilotQueryLocal = (query, contextData) => {
-  const {
-    transactions = [],
-    budgets = [],
-    goals = [],
-    recurring = [],
-    healthScore = {},
-    currency = '₹'
-  } = contextData;
-
+  const { transactions = [], recurring = [], healthScore = {}, currency = '$' } = contextData;
   const q = query.toLowerCase().trim();
 
   const totalIncome = transactions
@@ -89,21 +73,11 @@ export const processCopilotQueryLocal = (query, contextData) => {
 
   const netSavings = totalIncome - totalExpenses;
 
-  // ============================================================
-  // TOP SPENDING CATEGORIES
-  // ============================================================
-
-  if (
-    q.includes('where') ||
-    q.includes('spending most') ||
-    q.includes('biggest expense') ||
-    q.includes('top category')
-  ) {
+  // Top spending categories
+  if (q.includes('where') || q.includes('spending most') || q.includes('biggest expense') || q.includes('top category')) {
     if (!transactions.length) {
       return {
-        answer:
-          `I don't see any transactions in your database yet. ` +
-          `Upload a CSV file or add entries to analyze your top spending categories.`
+        answer: `I don't see any transactions in your database yet. Upload a CSV file or add entries to analyze your top spending categories.`
       };
     }
 
@@ -161,6 +135,8 @@ export const processCopilotQueryLocal = (query, contextData) => {
     };
   }
 
+  // Health score query
+  if (q.includes('health') || q.includes('score') || q.includes('financial status')) {
   // ============================================================
   // FINANCIAL HEALTH SCORE
   // ============================================================
@@ -224,9 +200,7 @@ export const processCopilotQueryLocal = (query, contextData) => {
           `• ${r.merchant}: ${currency}${Number(r.amount).toFixed(2)} ` +
           `(${r.billing_cycle || 'Monthly'})\n`;
       });
-
-      answer +=
-        `\n*Recurring payment detected — consider reviewing whether you still use it.*`;
+      answer += `\n*Recurring payment detected — consider reviewing whether you still use it.*`;
     } else {
       answer +=
         `No recurring subscriptions detected yet. ` +

@@ -9,7 +9,6 @@ import {
   Target, 
   Sliders, 
   Bot,
-  AlertCircle,
   Flame
 } from 'lucide-react';
 

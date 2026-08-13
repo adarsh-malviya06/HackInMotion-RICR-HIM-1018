@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Plus, ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Plus, ArrowRight } from 'lucide-react';
 
 export const HeroHeader = () => {
   const { setActiveTab } = useFinance();

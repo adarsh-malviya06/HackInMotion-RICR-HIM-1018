@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { Wand2, Copy, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react';
+import { Wand2, Copy, CheckCircle2, Sparkles } from 'lucide-react';
 
 export const DataIntelligenceCenter = () => {
   const { duplicates, transactions, deleteTransaction, showToast } = useFinance();
