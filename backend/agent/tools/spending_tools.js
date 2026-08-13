@@ -165,3 +165,37 @@ export const get_transaction_summary = (context) => {
     currency
   };
 };
+
+export const get_recent_transactions = (context, { limit = 10, category, type } = {}) => {
+  const { transactions = [], currency = '$' } = context;
+
+  if (!transactions.length) {
+    return { transactions: [], count: 0, message: 'No transactions found in database.', currency };
+  }
+
+  let filtered = [...transactions];
+  if (type) {
+    filtered = filtered.filter(t => t.type?.toLowerCase() === type.toLowerCase());
+  }
+  if (category) {
+    filtered = filtered.filter(t => t.category?.toLowerCase().includes(category.toLowerCase()));
+  }
+
+  const maxLimit = Math.min(20, Math.max(1, Number(limit || 10)));
+  const resultList = filtered.slice(0, maxLimit).map((t, idx) => ({
+    index: idx + 1,
+    date: t.date || 'N/A',
+    merchant: t.merchant || 'Unknown Merchant',
+    category: t.category || 'Uncategorized',
+    type: t.type || 'expense',
+    amount: `${currency}${Number(t.amount || 0).toFixed(2)}`
+  }));
+
+  return {
+    transactions: resultList,
+    returned_count: resultList.length,
+    total_matching_transactions: filtered.length,
+    currency
+  };
+};
+

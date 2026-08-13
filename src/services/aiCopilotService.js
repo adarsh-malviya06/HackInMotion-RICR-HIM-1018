@@ -57,6 +57,30 @@ export const processCopilotQueryLocal = (query, contextData) => {
 
   const netSavings = totalIncome - totalExpenses;
 
+  // 0. Show / List transactions query
+  if (q.includes('show') || q.includes('list') || q.includes('transaction') || q.includes('first') || q.includes('recent')) {
+    if (!transactions.length) {
+      return {
+        answer: `I don't see any transactions in your database yet. Upload a bank CSV file or add entries manually to view them here.`
+      };
+    }
+
+    const matchLimit = q.match(/\b(\d+)\b/);
+    const limit = matchLimit ? Math.min(20, parseInt(matchLimit[1], 10)) : 10;
+    const sliceList = transactions.slice(0, limit);
+
+    let answer = `Here are the first **${sliceList.length}** transactions from your database (Total: **${transactions.length}**):\n\n`;
+    answer += `| # | Date | Merchant | Category | Type | Amount |\n`;
+    answer += `|---|---|---|---|---|---|\n`;
+    sliceList.forEach((t, idx) => {
+      const amtStr = `${currency}${Number(t.amount || 0).toFixed(2)}`;
+      const typeBadge = t.type === 'income' ? '🟢 Income' : '🔴 Expense';
+      answer += `| ${idx + 1} | ${t.date || 'N/A'} | **${t.merchant || 'Merchant'}** | ${t.category || 'Category'} | ${typeBadge} | **${amtStr}** |\n`;
+    });
+
+    return { answer };
+  }
+
   // 1. Top spending categories query
   if (q.includes('where') || q.includes('spending most') || q.includes('biggest expense') || q.includes('top category')) {
     if (!transactions.length) {
