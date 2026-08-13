@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
+import { calculateCategoryTrends } from '../../services/dataIntelligence';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -11,7 +12,9 @@ import {
   ShieldCheck,
   Repeat,
   PieChart,
-  Bot
+  Bot,
+  Tag,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -54,20 +57,43 @@ export const FinancialDashboard = () => {
   const totalExpense = expenseTxs.reduce((sum, t) => sum + Number(t.amount), 0);
   const netSavings = totalIncome - totalExpense;
 
-  // Category Distribution Doughnut
-  const categoryTotals = {};
+  // Category Distribution & Detailed Breakdown
+  const categoryStats = {};
   expenseTxs.forEach(t => {
-    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + Number(t.amount);
+    const cat = t.category || 'Other';
+    if (!categoryStats[cat]) {
+      categoryStats[cat] = { amount: 0, count: 0 };
+    }
+    categoryStats[cat].amount += Number(t.amount);
+    categoryStats[cat].count += 1;
   });
+
+  const sortedCategories = Object.keys(categoryStats)
+    .map(cat => ({
+      name: cat,
+      amount: categoryStats[cat].amount,
+      count: categoryStats[cat].count,
+      percentage: totalExpense > 0 ? Math.round((categoryStats[cat].amount / totalExpense) * 100) : 0
+    }))
+    .sort((a, b) => b.amount - a.amount);
+
+  const categoryTotals = {};
+  sortedCategories.forEach(c => {
+    categoryTotals[c.name] = c.amount;
+  });
+
+  const categoryTrends = calculateCategoryTrends(transactions);
+
+  const categoryColors = [
+    '#7c5cff', '#10b981', '#3b82f6', '#f43f5e', '#f59e0b', '#06b6d4', '#c084fc', '#64748b', '#ec4899', '#8b5cf6'
+  ];
 
   const doughnutData = {
     labels: Object.keys(categoryTotals),
     datasets: [
       {
         data: Object.values(categoryTotals),
-        backgroundColor: [
-          '#191728', '#7c5cff', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#64748b'
-        ],
+        backgroundColor: categoryColors.slice(0, Object.keys(categoryTotals).length),
         borderWidth: 0
       }
     ]
@@ -388,8 +414,118 @@ export const FinancialDashboard = () => {
               </div>
             </div>
           </div>
+
+          {/* CATEGORY-WISE SPENDING BREAKDOWN & TREND ANALYTICS */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px' }}>
+            {/* Detailed Category Breakdown Table */}
+            <div className="card-white-clean">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div>
+                  <h3 className="display-title" style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    Category-Wise Expense Allocation
+                  </h3>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    Automatically categorized spending across all imported data
+                  </span>
+                </div>
+                {sortedCategories.length > 0 && (
+                  <span style={{ background: '#f1f5f9', color: 'var(--accent-purple)', padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontSize: '0.75rem', fontWeight: 700 }}>
+                    Top: {sortedCategories[0].name}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sortedCategories.map((cat, idx) => (
+                  <div key={cat.name} style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '14px', border: '1px solid #edf0f8' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          background: categoryColors[idx % categoryColors.length]
+                        }} />
+                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                          {cat.name}
+                        </span>
+                        <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                          ({cat.count} tx{cat.count > 1 ? 's' : ''})
+                        </span>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span className="num-mono" style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-dark)' }}>
+                          {currency}{cat.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                        <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 700, marginLeft: '8px' }}>
+                          {cat.percentage}%
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${cat.percentage}%`,
+                        height: '100%',
+                        background: categoryColors[idx % categoryColors.length],
+                        borderRadius: '4px'
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Month-over-Month Category Trend Insights */}
+            <div className="card-white-clean">
+              <h3 className="display-title" style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '6px' }}>
+                Category Trend Insights
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                Algorithmic month-over-month category spending shifts
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {categoryTrends.length === 0 ? (
+                  <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                    Upload multi-month statement CSVs to calculate automated category trends.
+                  </div>
+                ) : (
+                  categoryTrends.slice(0, 6).map((trend, idx) => (
+                    <div key={idx} style={{
+                      background: trend.percentChange > 0 ? '#fff1f2' : trend.percentChange < 0 ? '#f0fdf4' : '#f8fafc',
+                      border: `1px solid ${trend.percentChange > 0 ? '#fecdd3' : trend.percentChange < 0 ? '#bbf7d0' : '#edf0f8'}`,
+                      padding: '10px 14px',
+                      borderRadius: '12px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                          {trend.category}
+                        </span>
+                        {trend.percentChange !== 0 && (
+                          <span style={{
+                            fontSize: '0.725rem',
+                            fontWeight: 800,
+                            color: trend.percentChange > 0 ? '#be123c' : '#15803d',
+                            background: trend.percentChange > 0 ? '#ffe4e6' : '#dcfce7',
+                            padding: '2px 8px',
+                            borderRadius: 'var(--radius-pill)'
+                          }}>
+                            {trend.percentChange > 0 ? `+${trend.percentChange}%` : `${trend.percentChange}%`}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        {trend.trendText}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
   );
 };
+

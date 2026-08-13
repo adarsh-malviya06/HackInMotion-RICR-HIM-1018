@@ -1,29 +1,61 @@
-/**
- * Express Backend API Server for Financial AI Agent
- * Serves POST /api/agent/chat endpoint with strict multi-tenant authorization.
- */
-
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { connectDB } from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import financialRoutes from './routes/financialRoutes.js';
 import { runFinancialAgent } from './agent/agent.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from backend/.env
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// Configure CORS for credentialed requests (cookies)
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow during local dev testing
+      }
+    },
+    credentials: true
+  })
+);
+
+// Middleware
 app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Health Check Endpoint
+// Health Check Route
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'online',
-    agent: 'FINLY Financial AI Copilot',
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'FINLY Backend & AI Agent Running',
     groq_configured: Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim() !== '')
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api', financialRoutes);
 
 // AI Agent Chat Endpoint
 app.post('/api/agent/chat', async (req, res) => {
@@ -34,18 +66,15 @@ app.post('/api/agent/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required and must be a non-empty string.' });
     }
 
-    // Security Context Building:
-    // Sanitize user context so tool execution works in the user's isolated context
     const sanitizedContext = {
       transactions: Array.isArray(context?.transactions) ? context.transactions : [],
       budgets: Array.isArray(context?.budgets) ? context.budgets : [],
       goals: Array.isArray(context?.goals) ? context.goals : [],
       recurring: Array.isArray(context?.recurring) ? context.recurring : [],
       healthScore: typeof context?.healthScore === 'object' ? context.healthScore : {},
-      currency: context?.currency || '$'
+      currency: context?.currency || '₹'
     };
 
-    // Execute AI Financial Agent loop
     const result = await runFinancialAgent({
       message: message.trim(),
       userContext: sanitizedContext,
@@ -63,14 +92,36 @@ app.post('/api/agent/chat', async (req, res) => {
     console.error('API Error in /api/agent/chat:', error);
     return res.status(500).json({
       success: false,
-      error: 'I couldn\'t retrieve your financial data right now. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: 'I couldn\'t retrieve your financial data right now. Please try again.'
     });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 FINLY AI Agent Backend Server running on http://localhost:${PORT}`);
-  console.log(`🤖 Groq Model: ${process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'}`);
-  console.log(`🔑 Groq API Key: ${process.env.GROQ_API_KEY ? 'Configured ✅' : 'Not set (Using tool fallback engine) ⚠️'}`);
+// Global 404 Route Handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
 });
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('[Server Error]:', err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error'
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+
+async function startServer() {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`[FINLY Server] Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error(`[FINLY Server Fatal] Server failed to start due to database connection failure.`);
+    process.exit(1);
+  }
+}
+
+startServer();

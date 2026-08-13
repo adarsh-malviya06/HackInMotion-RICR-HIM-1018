@@ -138,8 +138,8 @@ export const FinanceProvider = ({ children }) => {
     }
   };
 
-  // Bulk Import CSV Transactions
-  const importBulkTransactions = async (rawItems) => {
+  // Bulk Import CSV Transactions with Deduplication & Summary
+  const importBulkTransactions = async (rawItems, meta = {}) => {
     const cleaned = rawItems.map(item => {
       const merchant = normalizeMerchantName(item.merchant || item.raw_description || 'Expense');
       const category = item.category && item.category !== 'Uncategorized' 
@@ -159,13 +159,42 @@ export const FinanceProvider = ({ children }) => {
     });
 
     try {
-      const res = await api.transactions.import(cleaned);
+      const payload = {
+        items: cleaned,
+        filesProcessed: meta.filesProcessed || 1,
+        fileNames: meta.fileNames || ['Statement.csv']
+      };
+
+      const res = await api.transactions.import(payload);
       const imported = res.data || [];
-      setTransactions(prev => [...imported, ...prev]);
-      showToast(`Successfully imported ${imported.length} user transactions!`, 'success');
+      const summary = res.summary || {
+        totalRows: cleaned.length,
+        imported: imported.length,
+        duplicates: cleaned.length - imported.length,
+        invalid: 0,
+        filesProcessed: meta.filesProcessed || 1,
+        fileNames: meta.fileNames || ['Statement.csv']
+      };
+
+      // Append newly imported transactions to existing user dataset
+      if (imported.length > 0) {
+        setTransactions(prev => [...imported, ...prev]);
+      }
+
+      showToast(`Import complete: ${summary.imported} added, ${summary.duplicates} duplicates skipped.`, 'success');
+      return summary;
     } catch (err) {
       showToast(err.message || 'Failed to import transactions', 'error');
+      // Fallback in-memory update for offline mode
       setTransactions(prev => [...cleaned, ...prev]);
+      return {
+        totalRows: cleaned.length,
+        imported: cleaned.length,
+        duplicates: 0,
+        invalid: 0,
+        filesProcessed: meta.filesProcessed || 1,
+        fileNames: meta.fileNames || ['Statement.csv']
+      };
     }
   };
 

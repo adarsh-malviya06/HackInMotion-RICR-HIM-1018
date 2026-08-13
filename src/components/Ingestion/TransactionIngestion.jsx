@@ -30,9 +30,11 @@ export const TransactionIngestion = () => {
   });
 
   // CSV Import State
-  const [csvFile, setCsvFile] = useState(null);
+  const [csvFiles, setCsvFiles] = useState([]);
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [rawRows, setRawRows] = useState([]);
+  const [importSummary, setImportSummary] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [columnMap, setColumnMap] = useState({
     date: '',
     merchant: '',
@@ -68,37 +70,66 @@ export const TransactionIngestion = () => {
     setActiveTab('dashboard');
   };
 
-  const handleFileUpload = (file) => {
-    if (!file) return;
-    setCsvFile(file);
+  const handleFileUpload = (filesInput) => {
+    if (!filesInput) return;
+    const fileList = filesInput.length !== undefined ? Array.from(filesInput) : [filesInput];
+    if (!fileList.length) return;
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        if (results.data && results.data.length) {
-          const headers = Object.keys(results.data[0]);
-          setCsvHeaders(headers);
-          setRawRows(results.data);
+    setCsvFiles(fileList);
+    setImportSummary(null);
+    setIsProcessing(true);
 
-          const autoMap = { date: '', merchant: '', amount: '', category: '', type: '' };
-          headers.forEach(h => {
-            const lower = h.toLowerCase();
-            if (lower.includes('date') || lower.includes('time')) autoMap.date = h;
-            else if (lower.includes('merchant') || lower.includes('payee') || lower.includes('desc') || lower.includes('name')) autoMap.merchant = h;
-            else if (lower.includes('amount') || lower.includes('price') || lower.includes('val')) autoMap.amount = h;
-            else if (lower.includes('cat')) autoMap.category = h;
-            else if (lower.includes('type')) autoMap.type = h;
-          });
-          setColumnMap(autoMap);
-          showToast(`Parsed CSV with ${results.data.length} rows!`, 'success');
+    let combinedRows = [];
+    let allHeaders = new Set();
+    let filesProcessedCount = 0;
+
+    fileList.forEach(file => {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          filesProcessedCount++;
+          if (results.data && results.data.length) {
+            results.data.forEach(row => combinedRows.push(row));
+            Object.keys(results.data[0]).forEach(h => allHeaders.add(h));
+          }
+
+          if (filesProcessedCount === fileList.length) {
+            const headerArr = Array.from(allHeaders);
+            setCsvHeaders(headerArr);
+            setRawRows(combinedRows);
+            setIsProcessing(false);
+
+            const autoMap = { date: '', merchant: '', amount: '', category: '', type: '' };
+            headerArr.forEach(h => {
+              const lower = h.toLowerCase();
+              if (lower.includes('date') || lower.includes('time')) autoMap.date = h;
+              else if (lower.includes('merchant') || lower.includes('payee') || lower.includes('desc') || lower.includes('name')) autoMap.merchant = h;
+              else if (lower.includes('amount') || lower.includes('price') || lower.includes('val')) autoMap.amount = h;
+              else if (lower.includes('cat')) autoMap.category = h;
+              else if (lower.includes('type')) autoMap.type = h;
+            });
+            setColumnMap(autoMap);
+
+            if (fileList.length === 1) {
+              showToast(`Parsed ${fileList[0].name} with ${combinedRows.length} rows!`, 'success');
+            } else {
+              showToast(`Parsed ${fileList.length} CSV files with ${combinedRows.length} total rows!`, 'success');
+            }
+          }
+        },
+        error: (err) => {
+          filesProcessedCount++;
+          showToast(`CSV Error in ${file.name}: ${err.message}`, 'error');
+          if (filesProcessedCount === fileList.length) {
+            setIsProcessing(false);
+          }
         }
-      },
-      error: (err) => showToast(`CSV Error: ${err.message}`, 'error')
+      });
     });
   };
 
-  const handleBulkImportSubmit = () => {
+  const handleBulkImportSubmit = async () => {
     if (!columnMap.merchant || !columnMap.amount) {
       showToast('Please map at least Merchant and Amount columns.', 'amber');
       return;
@@ -116,10 +147,17 @@ export const TransactionIngestion = () => {
       };
     });
 
-    importBulkTransactions(mapped);
-    setCsvFile(null);
+    const fileMeta = {
+      filesProcessed: csvFiles.length || 1,
+      fileNames: csvFiles.length ? csvFiles.map(f => f.name) : ['Statement.csv']
+    };
+
+    const summary = await importBulkTransactions(mapped, fileMeta);
+    if (summary) {
+      setImportSummary(summary);
+    }
+    setCsvFiles([]);
     setRawRows([]);
-    setActiveTab('dashboard');
   };
 
   const downloadSampleCsv = () => {
@@ -145,7 +183,7 @@ export const TransactionIngestion = () => {
       <div>
         <h1 className="display-title" style={{ fontSize: '2rem', fontWeight: 800 }}>Transaction Ingestion Center</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Import real bank CSV statement files or manually record single transaction items into your Supabase database
+          Import real bank CSV statement files or manually record single transaction items into your database
         </p>
       </div>
 
@@ -168,6 +206,74 @@ export const TransactionIngestion = () => {
       {/* CSV Uploader Subtab */}
       {activeSubTab === 'csv' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* IMPORT SUMMARY CARD (Displayed after import completes) */}
+          {importSummary && (
+            <div className="card-white-clean" style={{ border: '2px solid #10b981', background: '#f0fdf4', padding: '24px', borderRadius: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CheckCircle2 size={20} color="#15803d" />
+                  </div>
+                  <div>
+                    <h3 className="display-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#166534', margin: 0 }}>
+                      Import Complete
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: '#15803d', fontWeight: 600 }}>
+                      {importSummary.filesProcessed > 1 
+                        ? `Files Processed (${importSummary.filesProcessed}): ${importSummary.fileNames.join(', ')}`
+                        : `File: ${importSummary.fileNames[0] || 'Statement.csv'}`}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setImportSummary(null)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.8rem', color: '#166534', fontWeight: 700 }}
+                >
+                  ✕ Dismiss
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginTop: '16px' }}>
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
+                  <div style={{ fontSize: '0.725rem', color: '#166534', fontWeight: 700 }}>Total Rows Detected</div>
+                  <div className="num-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#14532d', marginTop: '2px' }}>
+                    {importSummary.totalRows}
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
+                  <div style={{ fontSize: '0.725rem', color: '#15803d', fontWeight: 700 }}>Successfully Imported</div>
+                  <div className="num-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#15803d', marginTop: '2px' }}>
+                    {importSummary.imported}
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fef08a' }}>
+                  <div style={{ fontSize: '0.725rem', color: '#854d0e', fontWeight: 700 }}>Duplicates Skipped</div>
+                  <div className="num-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#a16207', marginTop: '2px' }}>
+                    {importSummary.duplicates}
+                  </div>
+                </div>
+
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #fecdd3' }}>
+                  <div style={{ fontSize: '0.725rem', color: '#9f1239', fontWeight: 700 }}>Invalid Rows Skipped</div>
+                  <div className="num-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#be123c', marginTop: '2px' }}>
+                    {importSummary.invalid}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #bbf7d0' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#14532d' }}>
+                  🎉 New transactions added: <strong>{importSummary.imported}</strong>
+                </span>
+                <button onClick={() => setActiveTab('dashboard')} className="btn-pill-dark" style={{ padding: '8px 18px', fontSize: '0.8rem' }}>
+                  View Updated Dashboard →
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Drag & Drop Area */}
           <div
             className="card-light-lavender"
@@ -180,30 +286,38 @@ export const TransactionIngestion = () => {
             onDragOver={e => e.preventDefault()}
             onDrop={e => {
               e.preventDefault();
-              if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+              if (e.dataTransfer.files && e.dataTransfer.files.length) {
+                handleFileUpload(e.dataTransfer.files);
+              }
             }}
           >
             <FileSpreadsheet size={52} color="var(--accent-purple)" style={{ marginBottom: '14px' }} />
             <h3 className="display-title" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '6px' }}>
-              Drag & Drop Bank CSV Statement Here
+              Drag & Drop Bank CSV Statement(s) Here
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Supports CSV exports from Chase, Bank of America, Wells Fargo, Revolut, Amex, Apple Card & more.
+              Select one or multiple CSV statement files (e.g. August.csv, September.csv). Existing data is never overwritten.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
               <label className="btn-pill-dark" style={{ cursor: 'pointer' }}>
-                <UploadCloud size={16} /> Select CSV File
+                <UploadCloud size={16} /> Select CSV File(s)
                 <input
                   type="file"
                   accept=".csv"
+                  multiple
                   style={{ display: 'none' }}
-                  onChange={e => e.target.files.length && handleFileUpload(e.target.files[0])}
+                  onChange={e => e.target.files && e.target.files.length && handleFileUpload(e.target.files)}
                 />
               </label>
               <button onClick={downloadSampleCsv} className="btn-pill-white">
                 <Download size={16} /> Sample CSV Template
               </button>
             </div>
+            {csvFiles.length > 0 && (
+              <div style={{ marginTop: '16px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-purple)' }}>
+                📁 Loaded {csvFiles.length} file(s): {csvFiles.map(f => f.name).join(', ')} ({rawRows.length} total rows)
+              </div>
+            )}
           </div>
 
           {/* Mapping & Preview Section */}
@@ -265,7 +379,7 @@ export const TransactionIngestion = () => {
 
               {/* Data Preview */}
               <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px' }}>
-                Preview Parsed Records (First 5 items)
+                Preview Parsed Records (First 5 items out of {rawRows.length})
               </h4>
               <div style={{ overflowX: 'auto', marginBottom: '24px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
@@ -289,7 +403,7 @@ export const TransactionIngestion = () => {
               </div>
 
               <button onClick={handleBulkImportSubmit} className="btn-pill-dark" style={{ width: '100%', padding: '14px', justifyContent: 'center' }}>
-                <Check size={18} /> Confirm & Ingest {rawRows.length} Records to Supabase
+                <Check size={18} /> Confirm & Ingest {rawRows.length} Records with Duplicate Protection
               </button>
             </div>
           )}
