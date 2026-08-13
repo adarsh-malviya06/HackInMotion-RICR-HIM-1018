@@ -3,19 +3,24 @@
 // 1. Merchant Normalization Map & Regex Cleaners
 const MERCHANT_PATTERNS = [
   { pattern: /amzn|amazon|mktp/i, name: 'Amazon' },
-  { pattern: /uber|lyft|grab|cab/i, name: 'Uber / Ride Share' },
+  { pattern: /flipkart|myntra|ajio|meesho/i, name: 'Shopping Platform' },
+  { pattern: /uber|lyft|grab|cab|ola|rapido/i, name: 'Ride Share' },
   { pattern: /starbucks|dunkin|costa|coffee/i, name: 'Starbucks' },
-  { pattern: /netflix|hulu|disney|spotify|apple\.com\/bill|hbo|prime video/i, name: 'Subscription Service' },
-  { pattern: /doordash|ubereats|grubhub|postmates|zomato|swiggy/i, name: 'Food Delivery' },
-  { pattern: /walmart|target|costco|kroger|safeway|trader joe/i, name: 'Groceries' },
-  { pattern: /shell|chevron|exxon|bp|gas|fuel/i, name: 'Gas Station' },
-  { pattern: /payroll|salary|direct dep|stripe|payout/i, name: 'Payroll / Salary' }
+  { pattern: /swiggy|zomato|doordash|ubereats|grubhub/i, name: 'Food Delivery' },
+  { pattern: /zepto|blinkit|instamart|bigbasket|dmart|jiomart/i, name: 'Quick Commerce Groceries' },
+  { pattern: /netflix|hulu|disney|spotify|apple\.com\/bill|hbo|hotstar|prime video/i, name: 'Subscription Service' },
+  { pattern: /walmart|target|costco|kroger|safeway|trader joe|whole foods/i, name: 'Groceries' },
+  { pattern: /shell|chevron|exxon|bp|gas|fuel|bpcl|hpcl|iocl/i, name: 'Fuel Station' },
+  { pattern: /payroll|salary|direct dep|stripe|payout/i, name: 'Payroll / Salary' },
+  { pattern: /irctc|air india|indigo|akasa|spicejet|vistara/i, name: 'Travel Booking' },
+  { pattern: /apollo|pharmacy|pharmeasy|netmeds|1mg/i, name: 'Healthcare / Pharmacy' },
+  { pattern: /lic\b|hdfc life|icici lombard|policybazaar/i, name: 'Insurance Provider' }
 ];
 
 export const normalizeMerchantName = (rawStr) => {
   if (!rawStr) return 'Unknown Merchant';
   
-  const clean = rawStr
+  const clean = String(rawStr)
     .trim()
     .replace(/^SQ\s*\*|^TST\s*\*|^PAYPAL\s*\*/i, '') // strip payment gateway prefixes
     .replace(/\*.*$/, '') // strip trailing transaction IDs after asterisk
@@ -37,21 +42,75 @@ export const normalizeMerchantName = (rawStr) => {
 
 // 2. Smart Auto-Categorization Algorithm
 export const autoCategorize = (merchant, description = '', amount = 0, type = 'expense') => {
-  if (type === 'income') return 'Income';
+  const normType = String(type || '').toLowerCase();
+  const text = `${merchant || ''} ${description || ''}`.toLowerCase();
 
-  const text = `${merchant} ${description}`.toLowerCase();
+  // Income category rules
+  if (normType === 'income' || Number(amount) < 0) {
+    if (/salary|payroll|direct dep|wages|stipend|employer|company payout/i.test(text)) {
+      return 'Salary / Income';
+    }
+    return 'Other Income';
+  }
 
-  if (/rent|mortgage|lease|property|landlord|housing/i.test(text)) return 'Housing';
-  if (/grocery|supermarket|walmart|target|trader joe|kroger|costco|whole foods/i.test(text)) return 'Groceries';
-  if (/restaurant|cafe|coffee|starbucks|doordash|ubereats|grubhub|diner|bistro|food/i.test(text)) return 'Food & Dining';
-  if (/netflix|spotify|hulu|disney|apple|youtube|patreon|software|github|aws|digitalocean|adobe/i.test(text)) return 'Subscriptions & Tech';
-  if (/electric|power|water|gas bill|utility|internet|verizon|at&t|t-mobile|comcast|spectrum/i.test(text)) return 'Utilities';
-  if (/uber|lyft|gas|fuel|transit|metro|parking|toll|airline|flight|hotel|airbnb/i.test(text)) return 'Travel & Transport';
-  if (/gym|fitness|workout|pharmacy|cvs|walgreens|health|doctor|dental/i.test(text)) return 'Health & Fitness';
-  if (/amazon|clothing|zara|nike|electronics|shopping|store|mall/i.test(text)) return 'Shopping';
-  if (/investment|vanguard|fidelity|robinhood|crypto|stock|savings/i.test(text)) return 'Investments';
+  // Expense category rules
+  if (/swiggy|zomato|starbucks|dunkin|mcdonald|kfc|dominos|pizza|burger|restaurant|cafe|coffee|diner|bistro|food|dining|eat|pub|bar|bakery|subway|taco bell|chipotle/i.test(text)) {
+    return 'Food & Dining';
+  }
 
-  return 'Miscellaneous';
+  if (/zepto|blinkit|instamart|bigbasket|dmart|jiomart|grocery|groceries|supermarket|walmart|target|trader joe|kroger|costco|whole foods|market|fruits|vegetable|dairy|milk|bakers/i.test(text)) {
+    return 'Groceries';
+  }
+
+  if (/amazon|amzn|flipkart|myntra|ajio|meesho|zara|nike|adidas|puma|decathlon|shop|shopping|store|mall|clothing|apparel|electronics|fashion|retail|uniqlo|h&m/i.test(text)) {
+    return 'Shopping';
+  }
+
+  if (/rent|landlord|lease|property|housing|flat|maintenance fee|real estate|mortgage|apartment/i.test(text)) {
+    return 'Rent & Housing';
+  }
+
+  if (/electric|electricity|power|water bill|gas bill|utility|utilities|broadband|wifi|jio fiber|airtel|vodafone|vi\b|bsnl|tata play|dth|bill pay|piped gas|bescom|mseb/i.test(text)) {
+    return 'Bills & Utilities';
+  }
+
+  if (/uber|ola|rapido|taxi|cab|auto|metro|transit|fuel|petrol|diesel|gas station|shell|bpcl|hpcl|iocl|parking|toll|fastag|bus ticket/i.test(text)) {
+    return 'Transportation';
+  }
+
+  if (/irctc|railway|train|flight|airline|air india|indigo|akasa|spicejet|vistara|makemytrip|cleartrip|yatra|goibibo|hotel|resort|airbnb|stay|boarding/i.test(text)) {
+    return 'Travel';
+  }
+
+  if (/bookmyshow|pvr|inox|cinema|movie|theater|gaming|playstation|xbox|steam|event|concert|amusement|park/i.test(text)) {
+    return 'Entertainment';
+  }
+
+  if (/netflix|spotify|hotstar|disney|hulu|youtube|apple\.com|google play|prime video|patreon|software|github|aws|digitalocean|adobe|open ai|chatgpt|midjourney|linkedin|cloud|saas/i.test(text)) {
+    return 'Subscriptions & Tech';
+  }
+
+  if (/apollo|pharmacy|pharmeasy|netmeds|1mg|hospital|clinic|doctor|dental|dentist|health|lab|diagnostic|medicine|medical|cvs|walgreens/i.test(text)) {
+    return 'Healthcare';
+  }
+
+  if (/college|university|school|tuition|fees|coursera|udemy|edx|unacademy|byjus|coaching|books|exam|test series|academy|institution/i.test(text)) {
+    return 'Education';
+  }
+
+  if (/salon|spa|barber|cosmetics|nykaa|parlor|grooming|beauty|skincare|haircut/i.test(text)) {
+    return 'Personal Care';
+  }
+
+  if (/zerodha|groww|upstox|coin|mutual fund|sip|stocks|equity|vanguard|fidelity|robinhood|crypto|coindcx|binance|gold|bonds|investment/i.test(text)) {
+    return 'Investments';
+  }
+
+  if (/lic\b|hdfc life|icici lombard|max life|sbi life|insurance|policy|premium|policybazaar|health insurance|term insurance/i.test(text)) {
+    return 'Insurance';
+  }
+
+  return 'Other';
 };
 
 // 3. Deduplication Algorithm
@@ -277,3 +336,79 @@ export const detectMoneyLeaks = (transactions = []) => {
 
   return leaks;
 };
+
+// 7. Month-over-Month Category Trend Analytics
+export const calculateCategoryTrends = (transactions = []) => {
+  if (!transactions || !transactions.length) return [];
+
+  const monthCatMap = {};
+  const allMonths = new Set();
+
+  transactions
+    .filter(t => t.type === 'expense')
+    .forEach(t => {
+      const dateStr = t.date || new Date().toISOString().split('T')[0];
+      const monthKey = dateStr.slice(0, 7);
+      allMonths.add(monthKey);
+
+      if (!monthCatMap[monthKey]) monthCatMap[monthKey] = {};
+      const cat = t.category || 'Other';
+      monthCatMap[monthKey][cat] = (monthCatMap[monthKey][cat] || 0) + Number(t.amount);
+    });
+
+  const sortedMonths = Array.from(allMonths).sort();
+  if (sortedMonths.length === 0) return [];
+
+  if (sortedMonths.length < 2) {
+    const currentMonth = sortedMonths[0];
+    const catTotals = monthCatMap[currentMonth] || {};
+    return Object.keys(catTotals).map(cat => ({
+      category: cat,
+      currentMonthSpent: catTotals[cat],
+      previousMonthSpent: 0,
+      percentChange: 0,
+      trendText: `${cat}: ₹${catTotals[cat].toFixed(2)} recorded this month`
+    }));
+  }
+
+  const currMonthKey = sortedMonths[sortedMonths.length - 1];
+  const prevMonthKey = sortedMonths[sortedMonths.length - 2];
+
+  const currCatTotals = monthCatMap[currMonthKey] || {};
+  const prevCatTotals = monthCatMap[prevMonthKey] || {};
+
+  const allCategories = new Set([...Object.keys(currCatTotals), ...Object.keys(prevCatTotals)]);
+  const trends = [];
+
+  allCategories.forEach(cat => {
+    const currSpent = currCatTotals[cat] || 0;
+    const prevSpent = prevCatTotals[cat] || 0;
+
+    let percentChange = 0;
+    let trendText = '';
+
+    if (prevSpent > 0) {
+      percentChange = Math.round(((currSpent - prevSpent) / prevSpent) * 100);
+      if (percentChange > 0) {
+        trendText = `${cat} spending increased by ${percentChange}% compared to last month`;
+      } else if (percentChange < 0) {
+        trendText = `${cat} spending decreased by ${Math.abs(percentChange)}% compared to last month`;
+      } else {
+        trendText = `${cat} spending remained unchanged compared to last month`;
+      }
+    } else if (currSpent > 0) {
+      trendText = `${cat}: ₹${currSpent.toFixed(2)} spent this month (new category spending)`;
+    }
+
+    trends.push({
+      category: cat,
+      currentMonthSpent: currSpent,
+      previousMonthSpent: prevSpent,
+      percentChange,
+      trendText
+    });
+  });
+
+  return trends.sort((a, b) => b.currentMonthSpent - a.currentMonthSpent);
+};
+
