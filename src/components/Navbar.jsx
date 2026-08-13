@@ -1,13 +1,16 @@
 import React from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Plus, Database, Settings, User, LogOut, Globe, Sparkles } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Plus, LogOut, Sparkles, ArrowRight, User as UserIcon } from 'lucide-react';
 
-export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
-  const { supabaseConfig, session, supabase, currency, setCurrency, activeTab, setActiveTab } = useFinance();
+export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
+  const { activeTab, setActiveTab } = useFinance();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const handleSignOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    await logout();
+    if (onNavigateToLogin) {
+      onNavigateToLogin();
     }
   };
 
@@ -18,9 +21,25 @@ export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
     { id: 'financial-intelligence', label: 'Intelligence' },
     { id: 'subscriptions', label: 'Recurring' },
     { id: 'planning', label: 'Planning' },
-    { id: 'simulator', label: 'Simulator' },
-    { id: 'copilot', label: 'AI Copilot', highlight: true }
+    { id: 'simulator', label: 'Simulator' }
   ];
+
+  const handleNavClick = (linkId) => {
+    if (isAuthenticated) {
+      setActiveTab(linkId);
+    } else {
+      if (linkId === 'financial-intelligence') {
+        const el = document.querySelector('#intelligence');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+      if (onNavigateToLogin) {
+        onNavigateToLogin();
+      }
+    }
+  };
 
   return (
     <header style={{
@@ -29,12 +48,19 @@ export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
       justifyContent: 'space-between',
       padding: '12px 0 28px 0',
       borderBottom: '1px solid #dce0ee',
-      marginBottom: '28px'
+      marginBottom: '28px',
+      gap: '16px'
     }}>
       {/* Brand Logo matching BloomFi "+ FINLY" */}
       <div 
-        onClick={() => setActiveTab('dashboard')} 
-        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+        onClick={() => {
+          if (isAuthenticated) {
+            setActiveTab('dashboard');
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }} 
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flexShrink: 0 }}
       >
         <div style={{
           width: '28px',
@@ -53,14 +79,24 @@ export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
         </span>
       </div>
 
-      {/* Nav Links Navigation matching BloomFi center links */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#e2e6f2', padding: '4px', borderRadius: 'var(--radius-pill)' }}>
+      {/* Center Navigation: Original Workspace Product Modules */}
+      <nav style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        background: '#e2e6f2',
+        padding: '4px',
+        borderRadius: 'var(--radius-pill)',
+        maxWidth: 'calc(100vw - 340px)',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap'
+      }}>
         {navLinks.map(link => {
-          const isActive = activeTab === link.id;
+          const isActive = isAuthenticated && activeTab === link.id;
           return (
             <button
               key={link.id}
-              onClick={() => setActiveTab(link.id)}
+              onClick={() => handleNavClick(link.id)}
               style={{
                 background: isActive ? 'var(--bg-card-dark)' : 'transparent',
                 color: isActive ? '#ffffff' : 'var(--text-muted)',
@@ -71,9 +107,10 @@ export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
                 fontWeight: isActive ? 700 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px'
+                gap: '4px',
+                flexShrink: 0
               }}
             >
               {link.highlight && <Sparkles size={11} color={isActive ? '#c084fc' : 'var(--accent-purple)'} />}
@@ -84,53 +121,71 @@ export const Navbar = ({ onOpenSettings, onOpenAuth }) => {
       </nav>
 
       {/* Right Action Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        {/* Currency Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: '#ffffff', padding: '3px 6px', borderRadius: 'var(--radius-pill)', border: '1px solid #dce0ee' }}>
-          {['$', '€', '£', '₹'].map(s => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+        {isAuthenticated && user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#ffffff',
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid #dce0ee'
+            }}>
+              <UserIcon size={14} color="var(--accent-purple)" />
+              <span style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                {user.name || user.email}
+              </span>
+            </div>
             <button
-              key={s}
-              onClick={() => setCurrency(s)}
-              style={{
-                background: currency === s ? 'var(--bg-card-dark)' : 'transparent',
-                color: currency === s ? '#ffffff' : 'var(--text-muted)',
-                border: 'none',
-                borderRadius: 'var(--radius-pill)',
-                padding: '2px 7px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
+              onClick={handleSignOut}
+              className="btn-pill-dark"
+              style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+              title="Sign Out"
             >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Supabase Status Pill */}
-        <button
-          onClick={onOpenSettings}
-          className="btn-pill-light"
-          style={{ fontSize: '0.78rem', padding: '8px 14px' }}
-        >
-          <Database size={13} color="var(--accent-purple)" />
-          {supabaseConfig.isConfigured ? 'Supabase Connected' : 'Connect Supabase'}
-        </button>
-
-        {/* Auth / Launch BETA Dark Pill Button */}
-        {session ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-dark)' }}>
-              {session.user.email}
-            </span>
-            <button onClick={handleSignOut} className="btn-pill-dark" style={{ padding: '8px 12px' }} title="Sign Out">
-              <LogOut size={14} />
+              <LogOut size={14} /> Logout
             </button>
           </div>
         ) : (
-          <button onClick={onOpenAuth} className="btn-pill-dark">
-            Launch FINLY <Plus size={14} />
-          </button>
+          <>
+            <button
+              onClick={onNavigateToLogin}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-dark)',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                padding: '6px 12px',
+                cursor: 'pointer',
+                transition: 'opacity 0.15s ease'
+              }}
+            >
+              Sign In
+            </button>
+
+            <button
+              onClick={onNavigateToRegister}
+              style={{
+                background: 'var(--bg-card-dark)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 'var(--radius-pill)',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                padding: '8px 18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(25, 23, 40, 0.12)',
+                transition: 'transform 0.15s ease, opacity 0.15s ease'
+              }}
+            >
+              Get Started <ArrowRight size={14} />
+            </button>
+          </>
         )}
       </div>
     </header>

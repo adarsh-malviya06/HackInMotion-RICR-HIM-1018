@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { FinanceProvider, useFinance } from './context/FinanceContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { SettingsModal } from './components/SettingsModal';
-import { AuthModal } from './components/AuthModal';
+
+import { LoginPage } from './components/Auth/LoginPage';
+import { RegisterPage } from './components/Auth/RegisterPage';
+import { ProtectedRoute } from './components/Auth/ProtectedRoute';
+import { LandingPage } from './components/Landing/LandingPage';
 
 import { FinancialDashboard } from './components/Dashboard/FinancialDashboard';
 import { TransactionIngestion } from './components/Ingestion/TransactionIngestion';
@@ -11,12 +16,21 @@ import { FinancialIntelligence } from './components/Intelligence/FinancialIntell
 import { RecurringTracker } from './components/Subscriptions/RecurringTracker';
 import { BudgetPlanner } from './components/Planning/BudgetPlanner';
 import { WhatIfSimulator } from './components/Simulator/WhatIfSimulator';
-import { AiCopilot } from './components/Copilot/AiCopilot';
+import { FloatingAiCopilot } from './components/Copilot/FloatingAiCopilot';
 
 const MainLayout = () => {
-  const { activeTab, toast } = useFinance();
+  const { activeTab, toast, fetchUserFinancialData, clearAllData } = useFinance();
+  const { user, isAuthenticated, loading } = useAuth();
+  const [viewRoute, setViewRoute] = useState('landing'); // 'landing' | 'login' | 'register'
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchUserFinancialData();
+    } else if (!isAuthenticated && !loading) {
+      clearAllData();
+    }
+  }, [user?.id, isAuthenticated, loading, fetchUserFinancialData, clearAllData]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -27,9 +41,44 @@ const MainLayout = () => {
       case 'subscriptions': return <RecurringTracker />;
       case 'planning': return <BudgetPlanner />;
       case 'simulator': return <WhatIfSimulator />;
-      case 'copilot': return <AiCopilot />;
       default: return <FinancialDashboard />;
     }
+  };
+
+  const renderMainView = () => {
+    if (isAuthenticated) {
+      return (
+        <ProtectedRoute onRedirectToLogin={() => setViewRoute('login')}>
+          {renderTabContent()}
+        </ProtectedRoute>
+      );
+    }
+
+    if (viewRoute === 'login') {
+      return (
+        <LoginPage
+          onNavigateToRegister={() => setViewRoute('register')}
+          onLoginSuccess={() => setViewRoute('landing')}
+        />
+      );
+    }
+
+    if (viewRoute === 'register') {
+      return (
+        <RegisterPage
+          onNavigateToLogin={() => setViewRoute('login')}
+          onRegisterSuccess={() => setViewRoute('login')}
+        />
+      );
+    }
+
+    // Default Unauthenticated State: Public Landing Page
+    return (
+      <LandingPage
+        onNavigateToRegister={() => setViewRoute('register')}
+        onNavigateToLogin={() => setViewRoute('login')}
+      />
+    );
   };
 
   return (
@@ -38,7 +87,7 @@ const MainLayout = () => {
       {toast && (
         <div style={{
           position: 'fixed',
-          bottom: '24px',
+          bottom: '90px',
           right: '24px',
           background: 'var(--bg-card-dark)',
           color: '#ffffff',
@@ -47,7 +96,7 @@ const MainLayout = () => {
           boxShadow: 'var(--shadow-dark)',
           fontSize: '0.875rem',
           fontWeight: 600,
-          zIndex: 1000
+          zIndex: 10000
         }}>
           {toast.message}
         </div>
@@ -55,23 +104,22 @@ const MainLayout = () => {
 
       {/* Top Navbar */}
       <Navbar 
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onNavigateToLogin={() => setViewRoute('login')}
+        onNavigateToRegister={() => setViewRoute('register')}
       />
 
-      {/* Main Tab Workspace */}
-      <main>
-        {renderTabContent()}
+      {/* Main Workspace View */}
+      <main style={{ minHeight: 'calc(100vh - 180px)' }}>
+        {renderMainView()}
       </main>
+
+      {/* Persistent Floating AI Copilot Assistant */}
+      <FloatingAiCopilot />
 
       {/* Modals */}
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
-      />
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
       />
     </div>
   );
@@ -80,7 +128,9 @@ const MainLayout = () => {
 export default function App() {
   return (
     <FinanceProvider>
-      <MainLayout />
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
     </FinanceProvider>
   );
 }
