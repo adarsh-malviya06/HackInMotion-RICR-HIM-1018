@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Database, Copy, Check, X, ShieldCheck, Key } from 'lucide-react';
+import { Database, Copy, Check, X, ShieldCheck } from 'lucide-react';
 
 export const SettingsModal = ({ isOpen, onClose }) => {
   const { supabaseConfig, updateSupabaseCredentials, showToast } = useFinance();

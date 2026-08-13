@@ -58,7 +58,7 @@ export const FinanceProvider = ({ children }) => {
     const client = getSupabaseClient();
     if (!client) {
       setLoading(false);
-      recalculateIntelligence(transactions, budgets);
+      recalculateIntelligence([], []);
       return;
     }
 
