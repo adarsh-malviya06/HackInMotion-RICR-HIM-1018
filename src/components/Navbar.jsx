@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, LogOut, Sparkles, ArrowRight, User as UserIcon } from 'lucide-react';
+import { LogOut, ArrowRight, User as UserIcon } from 'lucide-react';
 
 export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
   const { activeTab, setActiveTab } = useFinance();
@@ -53,7 +53,7 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
       marginBottom: '28px',
       gap: '16px'
     }}>
-      {/* Brand Logo matching BloomFi "+ FINLY" */}
+      {/* Brand Logo & Name matching Finova Intelligent Fintech */}
       <div 
         onClick={() => {
           if (isAuthenticated) {
@@ -62,23 +62,29 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }} 
-        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flexShrink: 0 }}
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }}
       >
-        <div style={{
-          width: '28px',
-          height: '28px',
-          borderRadius: '8px',
-          background: 'var(--bg-card-dark)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff'
-        }}>
-          <Plus size={18} strokeWidth={2.5} />
+        <img 
+          src="/finova_logo.png" 
+          alt="Finova Logo" 
+          style={{ 
+            height: '36px', 
+            width: 'auto',
+            objectFit: 'contain',
+            borderRadius: '6px'
+          }} 
+          onError={(e) => {
+            e.target.style.display = 'none';
+          }}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+          <span className="display-title" style={{ fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
+            Finova
+          </span>
+          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#475569', letterSpacing: '0.04em' }}>
+            intelligent Fintech
+          </span>
         </div>
-        <span className="display-title" style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-          FINLY
-        </span>
       </div>
 
       {/* Center Navigation */}

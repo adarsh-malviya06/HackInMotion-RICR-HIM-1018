@@ -67,7 +67,7 @@ export const LandingPage = ({ onNavigateToRegister, onNavigateToLogin }) => {
     {
       step: '02',
       title: 'Clean',
-      desc: 'FINLY normalizes merchant names and flags duplicate entries automatically.'
+      desc: 'Finova normalizes merchant names and flags duplicate entries automatically.'
     },
     {
       step: '03',
@@ -173,7 +173,7 @@ export const LandingPage = ({ onNavigateToRegister, onNavigateToLogin }) => {
       <section id="how-it-works" style={{ maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 className="display-title" style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '10px' }}>
-            How FINLY Works in 4 Simple Steps
+            How Finova Works in 4 Simple Steps
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
             A smooth, automated pipeline from raw statement to actionable decisions.
@@ -229,7 +229,7 @@ export const LandingPage = ({ onNavigateToRegister, onNavigateToLogin }) => {
               "Your financial data shouldn't just be stored. It should tell you something."
             </h2>
             <p style={{ color: '#d8b4fe', fontSize: '0.95rem' }}>
-              FINLY transforms raw database rows into intelligent recommendations.
+              Finova transforms raw database rows into intelligent recommendations.
             </p>
           </div>
 

@@ -1,7 +1,7 @@
-# FINLY — HackInMotion Presentation Slide Deck (RICR-HIM-1018)
+# Finova — HackInMotion Presentation Slide Deck (RICR-HIM-1018)
 
 ## Slide 1: Title Slide
-* **Title**: ✦ FINLY — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
+* **Title**: ✦ Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
 * **Subtitle**: Pre-qualifier HackInMotion Hackathon Presentation
 * **Team**: RICR-HIM-1018
 * **Theme**: FinTech & Personal Finance
