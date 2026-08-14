@@ -12,9 +12,7 @@ import {
   ShieldCheck,
   Repeat,
   PieChart,
-  Bot,
-  Tag,
-  ArrowUpRight
+  Bot
 } from 'lucide-react';
 import {
   Chart as ChartJS,

@@ -60,7 +60,7 @@ export const User = {
     }
     const found = inMemoryUsers.find(u => String(u._id || u.id) === String(id));
     if (!found) return null;
-    const { passwordHash, ...safeUser } = found;
+    const { passwordHash: _passwordHash, ...safeUser } = found;
     return safeUser;
   },
 

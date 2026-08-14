@@ -31,7 +31,7 @@ export const TransactionIngestion = () => {
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [rawRows, setRawRows] = useState([]);
   const [importSummary, setImportSummary] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [, setIsProcessing] = useState(false);
   const [columnMap, setColumnMap] = useState({
     date: '',
     merchant: '',

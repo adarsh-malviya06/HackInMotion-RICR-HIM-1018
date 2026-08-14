@@ -6,9 +6,7 @@ import {
   TrendingUp, 
   Compass, 
   Bot, 
-  AlertTriangle,
-  Activity,
-  CheckCircle2
+  AlertTriangle
 } from 'lucide-react';
 
 export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {

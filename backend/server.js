@@ -103,7 +103,7 @@ app.use((req, res) => {
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error('[Server Error]:', err.stack);
   res.status(err.status || 500).json({
     message: err.message || 'Internal Server Error'
@@ -118,7 +118,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`[Finova Server] Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
-  } catch (err) {
+  } catch (_err) {
     console.error(`[Finova Server Fatal] Server failed to start due to database connection failure.`);
     process.exit(1);
   }

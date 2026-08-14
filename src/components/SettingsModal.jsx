@@ -1,11 +1,7 @@
 import React from 'react';
-import { useFinance } from '../context/FinanceContext';
 import { Database, X, ShieldCheck, Server, Cpu } from 'lucide-react';
 
 export const SettingsModal = ({ isOpen, onClose }) => {
-  const finance = useFinance() || {};
-  const showToast = finance.showToast || (() => {});
-
   if (!isOpen) return null;
 
   return (

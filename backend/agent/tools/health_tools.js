@@ -4,7 +4,7 @@
  */
 
 export const get_financial_health = (context) => {
-  const { healthScore = {}, transactions = [], budgets = [], currency = '$' } = context;
+  const { healthScore = {}, transactions = [], currency = '$' } = context;
 
   // Compute fallback or use existing healthScore structure
   const totalIncome = transactions
@@ -38,7 +38,7 @@ export const get_financial_health = (context) => {
 };
 
 export const get_health_factors = (context) => {
-  const { healthScore = {}, transactions = [], budgets = [], currency = '$' } = context;
+  const { transactions = [], budgets = [], currency = '$' } = context;
   const health = get_financial_health(context);
 
   const factors = [];

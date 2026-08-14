@@ -8,7 +8,6 @@ import {
   CreditCard, 
   Target, 
   Sliders, 
-  Bot,
   Flame
 } from 'lucide-react';
 

@@ -54,7 +54,7 @@ export const runFinancialAgent = async ({ message, userContext, history = [] }) 
           if (functionArgs.limit !== undefined) {
             functionArgs.limit = Number(functionArgs.limit) || 10;
           }
-        } catch (e) {
+        } catch (_e) {
           functionArgs = {};
         }
 

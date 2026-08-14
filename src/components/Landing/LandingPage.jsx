@@ -1,23 +1,17 @@
 import React from 'react';
 import { 
   ArrowRight, 
-  Sparkles, 
   UploadCloud, 
   ShieldCheck, 
   TrendingUp, 
   Repeat, 
   PieChart, 
   Bot, 
-  CheckCircle2, 
-  Zap, 
-  Layers, 
-  Compass, 
-  DollarSign, 
-  Activity 
+  CheckCircle2
 } from 'lucide-react';
 import { HeroSection } from './HeroSection';
 
-export const LandingPage = ({ onNavigateToRegister, onNavigateToLogin }) => {
+export const LandingPage = ({ onNavigateToRegister }) => {
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
