@@ -61,7 +61,10 @@ export const api = {
     getAll: () => request('/api/transactions', { method: 'GET' }),
     getById: (id) => request(`/api/transactions/${id}`, { method: 'GET' }),
     create: (data) => request('/api/transactions', { method: 'POST', body: data }),
-    import: (items) => request('/api/transactions/import', { method: 'POST', body: { items } }),
+    import: (itemsPayload) => request('/api/transactions/import', { 
+      method: 'POST', 
+      body: Array.isArray(itemsPayload) ? { items: itemsPayload } : itemsPayload 
+    }),
     update: (id, data) => request(`/api/transactions/${id}`, { method: 'PUT', body: data }),
     delete: (id) => request(`/api/transactions/${id}`, { method: 'DELETE' })
   },
