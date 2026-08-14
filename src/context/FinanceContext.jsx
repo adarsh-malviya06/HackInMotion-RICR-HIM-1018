@@ -282,8 +282,6 @@ export const FinanceProvider = ({ children }) => {
 
   return (
     <FinanceContext.Provider value={{
-      supabaseConfig: { url: '', key: '' },
-      updateSupabaseCredentials: () => {},
       fetchUserFinancialData,
       transactions,
       budgets,

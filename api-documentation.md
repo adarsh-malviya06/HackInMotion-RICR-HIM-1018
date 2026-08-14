@@ -1,6 +1,6 @@
 # Finova — API & Financial Intelligence Documentation
 
-This document provides complete technical specifications for **Finova**'s Backend AI Agent API, Financial Tools Catalogue, Data Categorization Algorithms, and Supabase Database Integration.
+This document provides complete technical specifications for **Finova**'s Backend AI Agent API, Financial Tools Catalogue, Data Categorization Algorithms, and MongoDB / MongoDB Atlas Database Integration.
 
 ---
 
@@ -128,11 +128,11 @@ Categorizes transactions using keyword and regex rules across merchant name and 
 
 ---
 
-## 4. Database Schema (Supabase PostgreSQL)
+## 4. Database Schema (MongoDB / MongoDB Atlas)
 
-Defined in `supabase_schema.sql`:
-* `profiles`: User account details and currency preference.
-* `transactions`: Transaction ledger (`amount`, `type`, `category`, `merchant`, `date`, `user_id`).
-* `budgets`: Category limits (`monthly_limit`, `category`, `user_id`).
-* `goals`: Wealth targets (`target_amount`, `current_amount`, `target_date`, `user_id`).
-* `recurring_expenses`: Detected recurring subscriptions (`merchant`, `amount`, `billing_cycle`, `user_id`).
+Defined in Mongoose models (`backend/models/`):
+* `User`: User account details, authentication hashes, and preferences.
+* `Transaction`: Transaction ledger (`amount`, `type`, `category`, `merchant`, `date`, `userId`).
+* `Budget`: Category limits (`monthlyLimit`, `category`, `userId`).
+* `Goal`: Wealth targets (`targetAmount`, `currentAmount`, `targetDate`, `userId`).
+* `Recurring`: Detected recurring subscriptions (`merchant`, `amount`, `billingCycle`, `userId`).

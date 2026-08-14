@@ -34,7 +34,7 @@ export const HeroHeader = () => {
           fontSize: '0.95rem',
           lineHeight: 1.6
         }}>
-          A programmable, AI-driven personal finance platform designed for native wealth accrual and seamless Supabase integration into your daily life.
+          A programmable, AI-driven personal finance platform designed for native wealth accrual and seamless intelligent integration into your daily life.
         </p>
 
         <button onClick={() => setActiveTab('ingestion')} className="btn-pill-dark" style={{ marginBottom: '32px' }}>
