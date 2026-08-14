@@ -3,9 +3,12 @@
  * Routes queries to backend Groq Agent API (/api/agent/chat) with local fallback capability.
  */
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 export const processCopilotQueryAsync = async (query, contextData, history = []) => {
   try {
-    const response = await fetch('/api/agent/chat', {
+    const endpointUrl = API_BASE_URL ? `${API_BASE_URL}/api/agent/chat` : '/api/agent/chat';
+    const response = await fetch(endpointUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
