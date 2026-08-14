@@ -29,12 +29,12 @@ graph TD
         GROQ["llama-3.3-70b-versatile"]
     end
 
-    subgraph Database["Supabase PostgreSQL"]
-        DB_PROFILES["profiles"]
+    subgraph Database["MongoDB / MongoDB Atlas"]
+        DB_PROFILES["users"]
         DB_TX["transactions"]
         DB_BUDGETS["budgets"]
         DB_GOALS["goals"]
-        DB_REC["recurring_expenses"]
+        DB_REC["recurring"]
     end
 
     COPILOT_UI -->|POST /api/agent/chat| ENDPOINT
@@ -73,5 +73,5 @@ graph TD
 4. **Modular Tools Layer (`backend/agent/tools/`)**:
    - 18 Groq tool definitions across spending, health scores, budget caps, goals, recurring payments, and simulations.
 
-5. **Supabase Database**:
-   - Multi-tenant PostgreSQL database with Row Level Security (RLS) policies protecting user data.
+5. **MongoDB / MongoDB Atlas Database**:
+   - Cloud MongoDB database with authenticated Mongoose schemas protecting user data.
