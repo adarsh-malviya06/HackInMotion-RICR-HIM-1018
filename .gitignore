@@ -12,10 +12,9 @@ dist
 dist-ssr
 *.local
 .env
-.env.*
 backend/data
-
-
+__pycache__/
+*.pyc
 # Environment variables
 .env
 .env.local
