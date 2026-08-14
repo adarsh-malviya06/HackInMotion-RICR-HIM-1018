@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
+import { PostImportAnalytics } from './PostImportAnalytics';
 import Papa from 'papaparse';
 import { 
   UploadCloud, 
@@ -509,6 +510,10 @@ export const TransactionIngestion = () => {
           </form>
         </div>
       )}
+
+      {/* POST-IMPORT FINANCIAL DATA PRESENTATION & INTERACTIVE LEDGER */}
+      <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '16px 0' }} />
+      <PostImportAnalytics title="Interactive Transaction Ledger & Category Breakdown" />
     </div>
   );
 };
