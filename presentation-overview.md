@@ -44,6 +44,6 @@
 ## Slide 5: Security & Quality Audit Resolution
 * **Secret Protection**: `GROQ_API_KEY` handled strictly backend-only (`.env` in `.gitignore`).
 * **Multi-Tenant Isolation**: Tools execute strictly within the authenticated user's context.
-* **Database**: Supabase PostgreSQL with Row Level Security (RLS) policies.
+* **Database**: MongoDB / MongoDB Atlas with authenticated Mongoose schemas.
 * **Code Quality**: Oxlint configured with 0 lint warnings; 100% Vite production build.
 * **Automated Tests**: `tests/agent.test.js` passing 12/12 unit and user isolation tests.
