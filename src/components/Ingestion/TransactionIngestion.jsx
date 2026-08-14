@@ -289,10 +289,10 @@ export const TransactionIngestion = () => {
           >
             <FileSpreadsheet size={52} color="var(--accent-purple)" style={{ marginBottom: '14px' }} />
             <h3 className="display-title" style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '6px' }}>
-              {csvFile ? `Loaded File: ${csvFile.name}` : 'Drag & Drop Bank CSV Statement Here'}
+              {csvFiles.length > 0 ? `Loaded File: ${csvFiles[0].name}` : 'Drag & Drop Bank CSV Statement Here'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              {csvFile ? `${rawRows.length} rows parsed. Map your columns below.` : 'Supports CSV exports from Chase, Bank of America, Wells Fargo, Revolut, Amex, Apple Card & more.'}
+              {csvFiles.length > 0 ? `${rawRows.length} rows parsed. Map your columns below.` : 'Supports CSV exports from Chase, Bank of America, Wells Fargo, Revolut, Amex, Apple Card & more.'}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
               <label className="btn-pill-dark" style={{ cursor: 'pointer' }}>

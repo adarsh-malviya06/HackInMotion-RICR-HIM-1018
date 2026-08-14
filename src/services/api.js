@@ -56,6 +56,14 @@ export const api = {
   put: (endpoint, body, options = {}) => request(endpoint, { ...options, method: 'PUT', body }),
   delete: (endpoint, options = {}) => request(endpoint, { ...options, method: 'DELETE' }),
 
+  // Auth API Methods
+  auth: {
+    me: () => request('/api/auth/me', { method: 'GET' }),
+    login: (credentials) => request('/api/auth/login', { method: 'POST', body: credentials }),
+    register: (userData) => request('/api/auth/register', { method: 'POST', body: userData }),
+    logout: () => request('/api/auth/logout', { method: 'POST' })
+  },
+
   // Financial API Methods (User-Scoped)
   transactions: {
     getAll: () => request('/api/transactions', { method: 'GET' }),
