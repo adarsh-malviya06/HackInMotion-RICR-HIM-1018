@@ -45,6 +45,15 @@ export const connectDB = async () => {
     const dbDir = path.join(__dirname, '..', 'data', 'db');
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
+    } else {
+      const lockFile = path.join(dbDir, 'mongod.lock');
+      if (fs.existsSync(lockFile)) {
+        try {
+          fs.unlinkSync(lockFile);
+        } catch (e) {
+          // ignore lock cleanup error
+        }
+      }
     }
 
     const { MongoMemoryServer } = await import('mongodb-memory-server');

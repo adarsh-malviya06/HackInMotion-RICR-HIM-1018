@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
 import { calculateCategoryTrends } from '../../services/dataIntelligence';
@@ -14,7 +14,11 @@ import {
   PieChart,
   Bot,
   Tag,
-  ArrowUpRight
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  FolderSearch
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -46,6 +50,23 @@ export const FinancialDashboard = () => {
   const { transactions, currency, healthScore, setActiveTab } = useFinance();
   const { user } = useAuth();
 
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [categorySearch, setCategorySearch] = useState({});
+
+  const toggleCategory = (catName) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [catName]: !prev[catName]
+    }));
+  };
+
+  const handleSearchChange = (catName, query) => {
+    setCategorySearch(prev => ({
+      ...prev,
+      [catName]: query
+    }));
+  };
+
   const userName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
   const hasData = transactions && transactions.length > 0;
 
@@ -53,8 +74,8 @@ export const FinancialDashboard = () => {
   const incomeTxs = transactions.filter(t => t.type === 'income');
   const expenseTxs = transactions.filter(t => t.type === 'expense');
 
-  const totalIncome = incomeTxs.reduce((sum, t) => sum + Number(t.amount), 0);
-  const totalExpense = expenseTxs.reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalIncome = incomeTxs.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  const totalExpense = expenseTxs.reduce((sum, t) => sum + Number(t.amount || 0), 0);
   const netSavings = totalIncome - totalExpense;
 
   // Category Distribution & Detailed Breakdown
@@ -64,7 +85,7 @@ export const FinancialDashboard = () => {
     if (!categoryStats[cat]) {
       categoryStats[cat] = { amount: 0, count: 0 };
     }
-    categoryStats[cat].amount += Number(t.amount);
+    categoryStats[cat].amount += Number(t.amount || 0);
     categoryStats[cat].count += 1;
   });
 
@@ -88,6 +109,30 @@ export const FinancialDashboard = () => {
     '#7c5cff', '#10b981', '#3b82f6', '#f43f5e', '#f59e0b', '#06b6d4', '#c084fc', '#64748b', '#ec4899', '#8b5cf6'
   ];
 
+  const categoryEmojiMap = {
+    'Food & Dining': '🍔',
+    'Groceries': '🛒',
+    'Shopping': '🛍️',
+    'Subscriptions & Tech': '🎬',
+    'Bills & Utilities': '💡',
+    'Utilities': '⚡',
+    'Rent & Housing': '🏠',
+    'Housing': '🏠',
+    'Transportation': '🚗',
+    'Travel & Transport': '✈️',
+    'Travel': '✈️',
+    'Healthcare': '🏥',
+    'Education': '📚',
+    'Personal Care': '💈',
+    'Investments': '📈',
+    'Insurance': '🛡️',
+    'Entertainment': '🎟️',
+    'Salary / Income': '💼',
+    'Other Income': '💵',
+    'Miscellaneous': '📦',
+    'Other': '📦'
+  };
+
   const doughnutData = {
     labels: Object.keys(categoryTotals),
     datasets: [
@@ -104,8 +149,8 @@ export const FinancialDashboard = () => {
   transactions.slice().reverse().forEach(t => {
     const d = t.date || 'Today';
     if (!dateMap[d]) dateMap[d] = { income: 0, expense: 0 };
-    if (t.type === 'income') dateMap[d].income += Number(t.amount);
-    else dateMap[d].expense += Number(t.amount);
+    if (t.type === 'income') dateMap[d].income += Number(t.amount || 0);
+    else dateMap[d].expense += Number(t.amount || 0);
   });
 
   const dates = Object.keys(dateMap).slice(-10);
@@ -415,64 +460,198 @@ export const FinancialDashboard = () => {
             </div>
           </div>
 
-          {/* CATEGORY-WISE SPENDING BREAKDOWN & TREND ANALYTICS */}
+          {/* CATEGORY-WISE TRANSACTION EXPLORER & TREND ANALYTICS */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px' }}>
-            {/* Detailed Category Breakdown Table */}
+            {/* Category-Wise Transaction Explorer */}
             <div className="card-white-clean">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
-                  <h3 className="display-title" style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
-                    Category-Wise Expense Allocation
+                  <h3 className="display-title" style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-dark)' }}>
+                    Category-Wise Transaction Explorer
                   </h3>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    Automatically categorized spending across all imported data
+                    Click any category to expand and explore all individual transactions
                   </span>
                 </div>
                 {sortedCategories.length > 0 && (
                   <span style={{ background: '#f1f5f9', color: 'var(--accent-purple)', padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontSize: '0.75rem', fontWeight: 700 }}>
-                    Top: {sortedCategories[0].name}
+                    {sortedCategories.length} Categories
                   </span>
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {sortedCategories.map((cat, idx) => (
-                  <div key={cat.name} style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '14px', border: '1px solid #edf0f8' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          background: categoryColors[idx % categoryColors.length]
-                        }} />
-                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-                          {cat.name}
-                        </span>
-                        <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                          ({cat.count} tx{cat.count > 1 ? 's' : ''})
-                        </span>
+              {sortedCategories.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '36px 20px', color: 'var(--text-muted)' }}>
+                  <FolderSearch size={40} color="var(--accent-purple)" style={{ marginBottom: '10px' }} />
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '4px' }}>No Category Transactions Yet</h4>
+                  <p style={{ fontSize: '0.825rem', margin: 0 }}>
+                    Upload a bank statement CSV or record a manual transaction to explore your spending categories.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {sortedCategories.map((cat, idx) => {
+                    const isExpanded = Boolean(expandedCategories[cat.name]);
+                    const emoji = categoryEmojiMap[cat.name] || '📦';
+                    const color = categoryColors[idx % categoryColors.length];
+                    const searchQ = (categorySearch[cat.name] || '').toLowerCase();
+                    
+                    const catTxs = expenseTxs.filter(t => (t.category || 'Other') === cat.name);
+                    const filteredTxs = catTxs.filter(t => {
+                      if (!searchQ) return true;
+                      return (t.merchant || '').toLowerCase().includes(searchQ) || 
+                             (t.raw_description || '').toLowerCase().includes(searchQ);
+                    });
+
+                    return (
+                      <div 
+                        key={cat.name} 
+                        style={{ 
+                          background: '#f8fafc', 
+                          borderRadius: '16px', 
+                          border: isExpanded ? `1.5px solid ${color}` : '1px solid #edf0f8',
+                          transition: 'all 0.2s ease',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {/* Category Header Row (Click to toggle expansion) */}
+                        <div 
+                          onClick={() => toggleCategory(cat.name)}
+                          style={{ 
+                            padding: '14px 18px', 
+                            cursor: 'pointer', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            userSelect: 'none'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '1.2rem' }}>{emoji}</span>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '0.925rem', fontWeight: 800, color: 'var(--text-dark)' }}>
+                                  {cat.name}
+                                </span>
+                                <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 600, background: '#ffffff', padding: '2px 8px', borderRadius: 'var(--radius-pill)', border: '1px solid #e2e8f0' }}>
+                                  {cat.count} tx{cat.count > 1 ? 's' : ''}
+                                </span>
+                              </div>
+                              {/* Progress bar */}
+                              <div style={{ width: '140px', height: '5px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', marginTop: '6px' }}>
+                                <div style={{ width: `${cat.percentage}%`, height: '100%', background: color, borderRadius: '4px' }} />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <span className="num-mono" style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-dark)' }}>
+                                {currency}{cat.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, marginLeft: '8px' }}>
+                                {cat.percentage}%
+                              </span>
+                            </div>
+                            <div style={{ 
+                              width: '28px', 
+                              height: '28px', 
+                              borderRadius: '50%', 
+                              background: isExpanded ? color : '#ffffff', 
+                              color: isExpanded ? '#ffffff' : '#64748b',
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              border: '1px solid #e2e8f0'
+                            }}>
+                              {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expanded Content: Search + Transaction List */}
+                        {isExpanded && (
+                          <div style={{ padding: '0 18px 18px 18px', borderTop: '1px solid #edf0f8', background: '#ffffff' }}>
+                            {/* Search Filter Input */}
+                            <div style={{ padding: '12px 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ position: 'relative', width: '100%', maxWidth: '280px' }}>
+                                <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input 
+                                  type="text"
+                                  placeholder={`Search ${cat.name}...`}
+                                  value={categorySearch[cat.name] || ''}
+                                  onChange={(e) => handleSearchChange(cat.name, e.target.value)}
+                                  style={{
+                                    width: '100%',
+                                    padding: '6px 12px 6px 32px',
+                                    fontSize: '0.775rem',
+                                    borderRadius: 'var(--radius-pill)',
+                                    border: '1px solid #cbd5e1',
+                                    outline: 'none',
+                                    background: '#f8fafc'
+                                  }}
+                                />
+                              </div>
+                              <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                Showing {filteredTxs.length} of {catTxs.length} items
+                              </span>
+                            </div>
+
+                            {/* Transaction Rows */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '320px', overflowY: 'auto' }}>
+                              {filteredTxs.length === 0 ? (
+                                <div style={{ padding: '14px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                  No transactions match your search filter.
+                                </div>
+                              ) : (
+                                filteredTxs.map((t, tIdx) => (
+                                  <div 
+                                    key={t._id || t.id || tIdx}
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      padding: '10px 14px',
+                                      background: '#f8fafc',
+                                      borderRadius: '10px',
+                                      border: '1px solid #f1f5f9'
+                                    }}
+                                  >
+                                    <div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-dark)' }}>
+                                          {t.merchant}
+                                        </span>
+                                        {t.is_recurring && (
+                                          <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.675rem', fontWeight: 700, padding: '1px 6px', borderRadius: '4px' }}>
+                                            Recurring
+                                          </span>
+                                        )}
+                                        {t.payment_method && (
+                                          <span style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.675rem', fontWeight: 600, padding: '1px 6px', borderRadius: '4px' }}>
+                                            {t.payment_method}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                        {t.raw_description && t.raw_description !== t.merchant ? `${t.raw_description} • ` : ''}{t.date}
+                                      </div>
+                                    </div>
+
+                                    <div className="num-mono" style={{ fontSize: '0.9rem', fontWeight: 800, color: '#f43f5e' }}>
+                                      -{currency}{Number(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span className="num-mono" style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-dark)' }}>
-                          {currency}{cat.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </span>
-                        <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 700, marginLeft: '8px' }}>
-                          {cat.percentage}%
-                        </span>
-                      </div>
-                    </div>
-                    <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${cat.percentage}%`,
-                        height: '100%',
-                        background: categoryColors[idx % categoryColors.length],
-                        borderRadius: '4px'
-                      }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Month-over-Month Category Trend Insights */}

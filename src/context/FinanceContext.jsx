@@ -166,11 +166,11 @@ export const FinanceProvider = ({ children }) => {
       };
 
       const res = await api.transactions.import(payload);
-      const imported = res.data || [];
-      const summary = res.summary || {
+      const imported = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+      const summary = res?.summary || {
         totalRows: cleaned.length,
         imported: imported.length,
-        duplicates: cleaned.length - imported.length,
+        duplicates: Math.max(0, cleaned.length - imported.length),
         invalid: 0,
         filesProcessed: meta.filesProcessed || 1,
         fileNames: meta.fileNames || ['Statement.csv']

@@ -60,8 +60,8 @@ async function runPhase4Tests() {
     console.log('1. Registering & Logging in User A...');
     await makeRequest({ path: '/api/auth/register', method: 'POST' }, { name: 'Alice P4', email: emailA, password: 'password123' });
     const loginA = await makeRequest({ path: '/api/auth/login', method: 'POST' }, { email: emailA, password: 'password123' });
-    const cookieA = loginA.cookies[0].split(';')[0];
-    console.log('   User A Authenticated. User ID:', loginA.data.user.id);
+    const cookieA = (loginA.cookies && loginA.cookies[0]) ? loginA.cookies[0].split(';')[0] : '';
+    console.log('   User A Authenticated. User ID:', loginA.data?.user?.id || 'N/A');
 
     // Step 2: User A Creates 2 Transactions
     console.log('\n2. User A creating transactions...');
@@ -96,7 +96,7 @@ async function runPhase4Tests() {
     await makeRequest({ path: '/api/auth/logout', method: 'POST' }, {}, cookieA);
     await makeRequest({ path: '/api/auth/register', method: 'POST' }, { name: 'Bob P4', email: emailB, password: 'password123' });
     const loginB = await makeRequest({ path: '/api/auth/login', method: 'POST' }, { email: emailB, password: 'password123' });
-    const cookieB = loginB.cookies[0].split(';')[0];
+    const cookieB = (loginB.cookies && loginB.cookies[0]) ? loginB.cookies[0].split(';')[0] : '';
 
     // Step 6: Verify User B cannot see User A data
     console.log('\n6. Checking User B data isolation...');

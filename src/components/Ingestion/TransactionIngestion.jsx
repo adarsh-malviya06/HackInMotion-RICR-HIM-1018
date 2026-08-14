@@ -6,7 +6,8 @@ import {
   PlusCircle, 
   FileSpreadsheet, 
   Check, 
-  Download
+  Download,
+  CheckCircle2
 } from 'lucide-react';
 
 export const TransactionIngestion = () => {
@@ -132,13 +133,28 @@ export const TransactionIngestion = () => {
     }
 
     const mapped = rawRows.map(row => {
-      const amtVal = parseFloat(row[columnMap.amount] || '0');
+      const rawAmtStr = String(row[columnMap.amount] || '0').replace(/[^0-9.-]+/g, '');
+      const amtVal = parseFloat(rawAmtStr) || 0;
+      const rawMerchantStr = String(row[columnMap.merchant] || row[columnMap.category] || 'Imported Transaction').trim();
+      const rawDateStr = row[columnMap.date];
+      
+      let cleanDate = new Date().toISOString().split('T')[0];
+      if (rawDateStr) {
+        const parsedDate = new Date(rawDateStr);
+        if (!isNaN(parsedDate.getTime())) {
+          cleanDate = parsedDate.toISOString().split('T')[0];
+        }
+      }
+
+      const rawType = String(row[columnMap.type] || '').toLowerCase();
+      const isIncome = amtVal < 0 ? false : (rawType.includes('inc') || rawMerchantStr.toLowerCase().includes('salary'));
+
       return {
-        date: row[columnMap.date] || new Date().toISOString().split('T')[0],
-        merchant: row[columnMap.merchant] || 'Imported Expense',
-        raw_description: row[columnMap.merchant] || '',
+        date: cleanDate,
+        merchant: rawMerchantStr || 'Imported Transaction',
+        raw_description: rawMerchantStr || 'Imported Transaction',
         amount: Math.abs(amtVal),
-        type: amtVal < 0 ? 'expense' : (row[columnMap.type] || 'expense').toLowerCase().includes('inc') ? 'income' : 'expense',
+        type: isIncome ? 'income' : 'expense',
         category: row[columnMap.category] || 'Uncategorized'
       };
     });
@@ -148,9 +164,13 @@ export const TransactionIngestion = () => {
       fileNames: csvFiles.length ? csvFiles.map(f => f.name) : ['Statement.csv']
     };
 
-    const summary = await importBulkTransactions(mapped, fileMeta);
-    if (summary) {
-      setImportSummary(summary);
+    try {
+      const summary = await importBulkTransactions(mapped, fileMeta);
+      if (summary) {
+        setImportSummary(summary);
+      }
+    } catch (err) {
+      showToast('Unable to import this CSV. Please check the file format.', 'error');
     }
     setCsvFiles([]);
     setRawRows([]);
