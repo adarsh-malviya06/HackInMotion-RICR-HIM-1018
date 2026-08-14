@@ -30,14 +30,15 @@ export const connectDB = async () => {
     }
   }
 
-  // 1. Attempt connection to primary configured MONGO_URI (Local daemon or MongoDB Atlas)
+  // 1. Attempt connection to primary configured MONGO_URI (MongoDB Atlas or Local Daemon)
   try {
-    const conn = await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 2000 });
+    const conn = await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 6000 });
     isMongoConnected = true;
-    console.log(`[MongoDB] REAL Persistent Database connected successfully: ${conn.connection.host}/${conn.connection.name}`);
+    const isAtlas = mongoUri.includes('mongodb+srv://');
+    console.log(`[MongoDB] ${isAtlas ? '☁️ MongoDB Atlas Cloud Database' : '💾 Local MongoDB'} connected successfully: ${conn.connection.host}/${conn.connection.name}`);
     return;
   } catch (error) {
-    console.warn(`[MongoDB] Primary Mongo URI (${mongoUri}) not active on port 27017: ${error.message}`);
+    console.warn(`[MongoDB Notice] Could not connect to primary MONGO_URI (${error.message}).`);
   }
 
   // 2. Persistent Disk Database Engine Fallback
