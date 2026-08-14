@@ -37,7 +37,7 @@ function makeRequest(options, postData = null, cookie = null) {
 
 async function runMultiCsvDeduplicationTest() {
   console.log('===========================================================');
-  console.log(' FINLY Multiple CSV Import & Duplicate Protection Test');
+  console.log(' Finova Multiple CSV Import & Duplicate Protection Test');
   console.log('===========================================================\n');
 
   try {

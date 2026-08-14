@@ -62,11 +62,11 @@ export const HeroHeader = () => {
         </div>
       </div>
 
-      {/* "What is FINLY?" Sub-Header Section */}
+      {/* "What is Finova?" Sub-Header Section */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'flex-start' }}>
         <div>
           <h2 className="display-title" style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '14px' }}>
-            What is FINLY?
+            What is Finova?
           </h2>
           <button onClick={() => setActiveTab('financial-intelligence')} className="btn-pill-dark">
             Explore now
@@ -75,7 +75,7 @@ export const HeroHeader = () => {
 
         <div>
           <p style={{ fontSize: '1.05rem', color: '#424458', lineHeight: 1.6, fontWeight: 500 }}>
-            FINLY is an automated financial intelligence engine that helps your capital grow while staying synced to your real bank CSV statements & Supabase PostgreSQL database.
+            Finova is an automated financial intelligence engine that helps your capital grow while staying synced to your real bank CSV statements & database.
           </p>
         </div>
       </div>
@@ -113,7 +113,7 @@ export const HeroHeader = () => {
               100% hands-free
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-dim-light)', lineHeight: 1.5 }}>
-              No need to manage strategies manually. FINLY AI works in the background for you.
+              No need to manage strategies manually. Finova AI works in the background for you.
             </p>
           </div>
         </div>

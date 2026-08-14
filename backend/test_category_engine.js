@@ -37,7 +37,7 @@ function makeRequest(options, postData = null, cookie = null) {
 
 async function runCategoryEngineTest() {
   console.log('===========================================================');
-  console.log(' FINLY Automatic Categorization Engine Test');
+  console.log(' Finova Automatic Categorization Engine Test');
   console.log('===========================================================\n');
 
   try {

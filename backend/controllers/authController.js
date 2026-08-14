@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 
 const generateToken = (userId) => {
-  const secret = process.env.JWT_SECRET || 'finly_jwt_secret_key_892347109283471';
+  const secret = process.env.JWT_SECRET || 'finova_jwt_secret_key_892347109283471';
   return jwt.sign({ id: userId }, secret, { expiresIn: '1d' });
 };
 

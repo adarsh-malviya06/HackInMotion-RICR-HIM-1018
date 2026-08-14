@@ -18,7 +18,7 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'Not authorized, no token provided' });
     }
 
-    const secret = process.env.JWT_SECRET || 'finly_jwt_secret_key_892347109283471';
+    const secret = process.env.JWT_SECRET || 'finova_jwt_secret_key_892347109283471';
     let decoded;
     try {
       decoded = jwt.verify(token, secret);

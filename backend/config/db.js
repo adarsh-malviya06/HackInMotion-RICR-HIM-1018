@@ -10,7 +10,7 @@ export let isMongoConnected = false;
 let mongoMemoryInstance = null;
 
 export const connectDB = async () => {
-  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/finly_db';
+  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/finova_db';
   const isTestMode = process.env.NODE_ENV === 'test' || process.env.USE_MEMORY_DB === 'true';
 
   // Explicit Ephemeral TEST Mode (for automated non-persisted test isolation)

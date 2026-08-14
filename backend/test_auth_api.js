@@ -48,7 +48,7 @@ function makeRequest(options, postData = null, cookie = null) {
 
 async function runAuthTests() {
   console.log('==================================================');
-  console.log(' FINLY Phase 1 Backend Auth Verification Test Suite');
+  console.log(' Finova Phase 1 Backend Auth Verification Test Suite');
   console.log('==================================================\n');
 
   try {
@@ -64,7 +64,7 @@ async function runAuthTests() {
     console.log(`\n2. POST /api/auth/register (New User: ${testEmail})`);
     const reg = await makeRequest(
       { path: '/api/auth/register', method: 'POST' },
-      { name: 'FINLY Test User', email: testEmail, password: 'securePassword123' }
+      { name: 'Finova Test User', email: testEmail, password: 'securePassword123' }
     );
     console.log(`   Status: ${reg.status}`, reg.data);
 
@@ -72,7 +72,7 @@ async function runAuthTests() {
     console.log(`\n3. POST /api/auth/register (Duplicate Email Test)`);
     const dupReg = await makeRequest(
       { path: '/api/auth/register', method: 'POST' },
-      { name: 'FINLY Test User', email: testEmail, password: 'securePassword123' }
+      { name: 'Finova Test User', email: testEmail, password: 'securePassword123' }
     );
     console.log(`   Status: ${dupReg.status} (Expected 400)`, dupReg.data);
 

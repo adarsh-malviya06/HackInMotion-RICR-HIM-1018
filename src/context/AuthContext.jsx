@@ -1,78 +1,64 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getSupabaseClient } from '../lib/supabase';
+import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ id: 'demo_user', email: 'user@finova.ai', name: 'Financial User' });
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Restore authenticated session from backend HttpOnly cookie on mount
   useEffect(() => {
-    const supabase = getSupabaseClient();
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    let isMounted = true;
+    api.auth.me()
+      .then(res => {
+        if (isMounted && res && res.user) {
+          setUser(res.user);
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.email });
-        setIsAuthenticated(true);
-      }
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.email });
-        setIsAuthenticated(true);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => { isMounted = false; };
   }, []);
 
   const login = async (email, password) => {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      if (data.user) {
-        setUser({ id: data.user.id, email: data.user.email, name: data.user.user_metadata?.full_name || data.user.email });
-        setIsAuthenticated(true);
-        return data;
-      }
+    const res = await api.auth.login({ email, password });
+    if (res && res.user) {
+      setUser(res.user);
+      setIsAuthenticated(true);
+      return res;
     }
-    // Local demo login fallback
-    setUser({ id: 'demo_user', email, name: email.split('@')[0] });
-    setIsAuthenticated(true);
-    return { user: { email } };
+    throw new Error('Login failed');
   };
 
   const register = async (email, password, fullName) => {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: fullName } }
-      });
-      if (error) throw error;
-      return data;
-    }
-    setUser({ id: `usr_${Date.now()}`, email, name: fullName || email });
-    setIsAuthenticated(true);
-    return { user: { email } };
+    const res = await api.auth.register({ name: fullName, email, password });
+    // Log user in immediately upon successful registration
+    await login(email, password);
+    return res;
   };
 
   const logout = async () => {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      await api.auth.logout();
+    } catch (err) {
+      console.warn('Logout API notice:', err.message);
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
     }
-    setUser(null);
-    setIsAuthenticated(false);
   };
 
   return (

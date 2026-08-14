@@ -4,7 +4,7 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 
 export const LoginPage = ({ onNavigateToRegister, onLoginSuccess }) => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('demo@finova.ai');
+  const [email, setEmail] = useState('demo1@finly.test');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

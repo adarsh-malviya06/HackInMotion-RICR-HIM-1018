@@ -50,7 +50,7 @@ export const BudgetPlanner = () => {
     if (!depositGoalId || !depositAmt) return;
     depositToGoal(depositGoalId, depositAmt);
     
-    const g = goals.find(item => item.id === depositGoalId);
+    const g = goals.find(item => (item._id || item.id) === depositGoalId);
     if (g && (Number(g.current_amount) + Number(depositAmt)) >= Number(g.target_amount)) {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       showToast(`Congratulations! You reached your goal "${g.name}"!`, 'success');
