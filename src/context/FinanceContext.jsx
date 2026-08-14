@@ -14,10 +14,31 @@ const FinanceContext = createContext(null);
 export const FinanceProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
-  // Core Financial Data Arrays
-  const [transactions, setTransactions] = useState([]);
-  const [budgets, setBudgets] = useState([]);
-  const [goals, setGoals] = useState([]);
+  // Core Financial Data Arrays with browser localStorage persistence
+  const [transactions, setTransactions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('finova_transactions') || localStorage.getItem('finly_transactions');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [budgets, setBudgets] = useState(() => {
+    try {
+      const saved = localStorage.getItem('finova_budgets') || localStorage.getItem('finly_budgets');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [goals, setGoals] = useState(() => {
+    try {
+      const saved = localStorage.getItem('finova_goals') || localStorage.getItem('finly_goals');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [recurring, setRecurring] = useState([]);
   
   // Settings & Preferences
@@ -37,7 +58,18 @@ export const FinanceProvider = ({ children }) => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Fetch authenticated user's financial datasets from Express Backend API
+  // Sync state changes with browser localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('finova_transactions', JSON.stringify(transactions));
+      localStorage.setItem('finova_budgets', JSON.stringify(budgets));
+      localStorage.setItem('finova_goals', JSON.stringify(goals));
+    } catch (e) {
+      console.warn('localStorage sync warning:', e);
+    }
+  }, [transactions, budgets, goals]);
+
+  // Fetch authenticated user's financial datasets from Backend API
   const fetchUserFinancialData = useCallback(async () => {
     setLoading(true);
     try {
@@ -47,22 +79,16 @@ export const FinanceProvider = ({ children }) => {
         api.goals.getAll()
       ]);
 
-      if (txData.status === 'fulfilled' && Array.isArray(txData.value)) {
+      if (txData.status === 'fulfilled' && Array.isArray(txData.value) && txData.value.length > 0) {
         setTransactions(txData.value);
-      } else {
-        setTransactions([]);
       }
 
-      if (bData.status === 'fulfilled' && Array.isArray(bData.value)) {
+      if (bData.status === 'fulfilled' && Array.isArray(bData.value) && bData.value.length > 0) {
         setBudgets(bData.value);
-      } else {
-        setBudgets([]);
       }
 
-      if (gData.status === 'fulfilled' && Array.isArray(gData.value)) {
+      if (gData.status === 'fulfilled' && Array.isArray(gData.value) && gData.value.length > 0) {
         setGoals(gData.value);
-      } else {
-        setGoals([]);
       }
     } catch (err) {
       console.warn('Backend financial data fetch notice:', err.message);
