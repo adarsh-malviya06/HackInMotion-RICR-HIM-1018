@@ -1,127 +1,177 @@
-install# Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
+# 💰 Finova
+### The financial copilot that never makes up a number.
 
-Finova is a high-performance financial management platform integrated with an **intelligent Financial AI Agent** powered by **Groq LLM + Function/Tool Calling**.
+**A smart expense analyzer + financial health dashboard, wired to an AI agent that reasons over *your real transactions* — not guesses.**
+
 
 ---
 
-## 🤖 AI Financial Agent Architecture
+## 🚩 The Problem
 
-The AI Agent acts as an intelligent financial copilot orchestrating tool calls over the user's actual database and analytics logic.
+Most people don't lack financial data — they're drowning in it. Bank SMS, UPI apps, credit card statements, five different budgeting apps that each show a different number. What's missing isn't *more dashboards*, it's someone who can actually **answer a question**:
 
-```text
-User Question (Floating AI Chat UI)
-       │
-       ▼
-Backend Express API (POST /api/agent/chat)
-  - Enforces User Session & Data Isolation
-  - Transmits User Financial Context
-       │
-       ▼
-Groq LLM (llama-3.3-70b-versatile)
-       │
-   Tool Selection (Function Calling Protocol)
-       │
-       ▼
-Financial Tools Layer (backend/agent/tools/)
-  - spending_tools.js
-  - health_tools.js
-  - budget_tools.js
-  - goal_tools.js
-  - subscription_tools.js
-  - simulation_tools.js
-       │
-       ▼
-Database / Domain Calculation Engine
-       │
-       ▼
-Structured JSON Result returned to Groq
-       │
-       ▼
-Final Grounded Response returned to Frontend UI
+> "Can I afford to cut my dining budget and still hit my Goa trip goal by December?"
+
+Existing expense trackers show you charts. They don't reason. And generic chatbots that *do* reason will happily hallucinate a savings rate that's off by 40%.
+
+## 💡 The Solution
+
+**Finova pairs a real financial calculation engine with an LLM that is only allowed to talk about numbers it actually computed.**
+
+The AI never does math in its head. Every dollar figure, percentage, or score it states comes from a backend tool call against your live database — the LLM's only job is picking the right tool and explaining the result in plain language. That's the difference between a chatbot and a copilot you can trust with money.
+
+---
+
+## ✨ Key Features
+
+| Category | What it does |
+|---|---|
+| 🧠 **Conversational AI Agent** | Ask financial questions in plain English via a floating chat UI — answers are grounded in your actual data, every time |
+| 📊 **Spending Intelligence** | Category breakdowns, month-over-month comparisons, top merchants, transaction summaries |
+| ❤️ **Financial Health Score** | Multi-factor health score with an explainable breakdown of what's helping or hurting it |
+| 🎯 **Budgets & Goals** | Set budgets per category, track adherence, monitor savings goals against real progress |
+| 🔁 **Subscription Detection** | Automatically surfaces recurring payments and subscriptions hiding in your transaction history |
+| 🔮 **What-If Simulation** | "What if I saved ₹5,000 more a month?" — simulate budget or savings changes before committing |
+| 🔒 **Zero-Trust Isolation** | Every tool call is scoped to the authenticated user — no cross-user data leakage, no LLM secrets in the frontend bundle |
+
+---
+
+## 🤖 How the AI Agent Works
+
+Finova's agent doesn't "chat" — it **orchestrates tool calls** over your real financial data and only writes prose once the numbers are already computed.
+
+```
+ User Question (Floating AI Chat UI)
+        │
+        ▼
+ Express API · POST /api/agent/chat
+   → authenticates session, scopes to user, attaches financial context
+        │
+        ▼
+ Groq LLM (llama-3.3-70b-versatile)
+   → selects the right tool(s), generates arguments
+        │
+        ▼
+ Financial Tools Layer  (backend/agent/tools/)
+   → spending_tools · health_tools · budget_tools
+   → goal_tools · subscription_tools · simulation_tools
+        │
+        ▼
+ Database / Domain Calculation Engine
+   → the ONLY place where numbers are ever computed
+        │
+        ▼
+ Structured JSON result → back to Groq → grounded final answer → UI
 ```
 
+**Why this matters for judges:** the LLM is architecturally *incapable* of inventing a savings rate or a health score — it can only report what the calculation engine returns. That's a deliberate anti-hallucination design, not an accident.
+
 ---
 
-## ⚡ Why Groq LLM?
+## ⚡ Why Groq?
 
-1. **Ultra-Fast Inference Speed**: Sub-second response times ideal for an interactive, conversational financial copilot.
-2. **First-Class Function Calling**: Precise tool selection and argument generation.
-3. **Enterprise Scalability**: Reliable execution for multi-step financial reasoning.
+| Reason | Impact |
+|---|---|
+| **Sub-second inference** | The agent feels conversational, not like a form submission with a spinner |
+| **Native function calling** | Reliable tool selection and argument generation, even across multi-step questions |
+| **Cheap enough to demo live** | No rate-limit anxiety during a judging round |
+
+If `GROQ_API_KEY` isn't set, Finova falls back to a local rule-based tool execution engine — so the app still runs end-to-end for judges without an internet-dependent API key.
 
 ---
 
 ## 🛠️ Modular Tool Registry
 
-All agent tools reside in [`backend/agent/tools/`](file:///c:/Users/anubh/OneDrive/Documents/GitHub/New%20folder/HackInMotion-RICR-HIM-1018/backend/agent/tools/):
+All agent tools live in [`backend/agent/tools/`](./backend/agent/tools/):
 
-* **Spending Tools**: `get_category_spending()`, `compare_monthly_spending()`, `get_top_spending_categories()`, `get_top_merchants()`, `get_transaction_summary()`
-* **Financial Health Tools**: `get_financial_health()`, `get_health_factors()`, `get_savings_rate()`, `get_budget_adherence()`
-* **Budget Tools**: `get_budget_status()`, `get_category_budget()`, `set_budget()`
-* **Goal Tools**: `get_savings_goals()`, `get_goal_progress()`
-* **Subscription Tools**: `detect_subscriptions()`, `get_recurring_payments()`
-* **Simulation Tools**: `simulate_savings()`, `simulate_budget_change()`
+| File | Tools |
+|---|---|
+| `spending_tools.js` | `get_category_spending()`, `compare_monthly_spending()`, `get_top_spending_categories()`, `get_top_merchants()`, `get_transaction_summary()` |
+| `health_tools.js` | `get_financial_health()`, `get_health_factors()`, `get_savings_rate()`, `get_budget_adherence()` |
+| `budget_tools.js` | `get_budget_status()`, `get_category_budget()`, `set_budget()` |
+| `goal_tools.js` | `get_savings_goals()`, `get_goal_progress()` |
+| `subscription_tools.js` | `detect_subscriptions()`, `get_recurring_payments()` |
+| `simulation_tools.js` | `simulate_savings()`, `simulate_budget_change()` |
+
+The system prompt enforcing this grounding behavior lives in [`backend/agent/system_prompt.js`](./backend/agent/system_prompt.js) — it explicitly forbids the model from stating any figure it didn't receive from a tool result.
 
 ---
 
 ## 🛡️ Security & Data Privacy
 
-* **Key Protection**: Groq API keys are handled strictly on the backend. The frontend bundle contains zero LLM secrets.
-* **User Isolation**: Tools execute exclusively against the authenticated user's financial dataset. User A cannot view User B's transactions.
-* **Grounding Guarantee**: Financial calculations (totals, percentages, savings rates, scores) are computed by backend code—never hallucinated by the LLM.
+- **Key protection** — Groq API keys live strictly on the backend; the frontend bundle ships zero LLM secrets.
+- **User isolation** — every tool executes only against the authenticated user's dataset. User A cannot see User B's transactions, even by prompt injection, since the tool layer scopes queries server-side, not via the LLM's judgment.
+- **Grounding guarantee** — totals, percentages, savings rates, and health scores are always backend-computed, never generated by the LLM.
 
 ---
 
-## ⚙️ Environment Configuration
+## 🖼️ Screenshots
 
-Create a `.env` file in the root directory (see `.env.example`):
+> _Dashboard, AI Copilot chat, and landing page views — add before submitting._
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A Groq API key ([console.groq.com](https://console.groq.com)) — optional, see fallback note above
+
+### 1. Clone and install
+```bash
+git clone https://github.com/<your-org>/HackInMotion-RICR-HIM-1018.git
+cd HackInMotion-RICR-HIM-1018
+npm install
+```
+
+### 2. Configure environment
+Copy `.env.example` to `.env` and fill in:
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
 PORT=3001
 ```
 
-*Note: If `GROQ_API_KEY` is omitted, the application uses an intelligent local tool execution engine as a fallback.*
-
----
-
-## 🚀 Running the Application
-
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Run Backend Agent API Server
+### 3. Run the backend agent API
 ```bash
 npm run server
 ```
 
-### 3. Run Frontend (Vite)
+### 4. Run the frontend (Vite)
 ```bash
 npm run dev
 ```
+The Vite dev server proxies all `/api/*` calls to the Express backend on port `3001`.
 
-The Vite dev server proxies `/api/*` endpoint calls directly to the Express backend server on port 3001.
-
-### 4. Run Automated Tests
+### 5. Run automated tests
 ```bash
 node tests/agent.test.js
 ```
 
 ---
 
-## 📁 System Prompt Location
+## 🗺️ Roadmap
 
-The central system message is managed at [`backend/agent/system_prompt.js`](file:///c:/Users/anubh/OneDrive/Documents/GitHub/New%20folder/HackInMotion-RICR-HIM-1018/backend/agent/system_prompt.js). It enforces grounding, forbids hallucinating numbers, and instructs the agent to rely strictly on tool execution outputs.
+- [ ] Bank-statement / UPI auto-import (currently manual/seeded transactions)
+- [ ] Multi-currency support
+- [ ] Proactive push notifications ("You're 80% through your dining budget")
+- [ ] Voice input for the chat agent
+- [ ] Shareable read-only financial health report
 
 ---
 
-## 👥 Team
+## 👥 Team — RICR-HIM-1018
 
-**Team Name:** RICR-HIM-1018
+| Name | Role |
+|---|---|
+| Adarsh Malviya | — |
+| Anubhav Gupta | — |
+| Ayush Raj | — |
 
-**Team Members:**
-- Adarsh Malviya
-- Anubhav Gupta
-- Ayush Raj
+Built at **HackInMotion**, RICR.
+
+---
+
+## 📄 License
+
+MIT — see [`LICENSE`](./LICENSE) for details.
