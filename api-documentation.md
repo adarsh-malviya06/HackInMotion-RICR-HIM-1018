@@ -2,6 +2,10 @@
 
 This document provides complete technical specifications for **Finova**'s Backend AI Agent API, Financial Tools Catalogue, Data Categorization Algorithms, and MongoDB / MongoDB Atlas Database Integration.
 
+## System Architecture
+
+![Finova Project System Architecture](architecture-diagram.md)
+
 ---
 
 ## 1. AI Agent REST Endpoints
