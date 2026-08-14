@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { AuthBrandMark } from './AuthBrandMark';
 
 export const RegisterPage = ({ onNavigateToLogin, onRegisterSuccess }) => {
   const { register } = useAuth();
@@ -27,11 +28,7 @@ export const RegisterPage = ({ onNavigateToLogin, onRegisterSuccess }) => {
   return (
     <div style={{ maxWidth: '420px', margin: '40px auto', padding: '32px', background: '#ffffff', borderRadius: '24px', border: '1px solid #dce0ee', boxShadow: '0 12px 32px rgba(25, 23, 40, 0.08)' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <img 
-          src="/finova_logo.png" 
-          alt="Finova Logo" 
-          style={{ height: '54px', width: 'auto', marginBottom: '8px', mixBlendMode: 'multiply' }} 
-        />
+        <AuthBrandMark />
         <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-dark)', margin: 0 }}>Create Account</h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '4px' }}>Get started with intelligent AI financial analytics</p>
       </div>
