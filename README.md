@@ -1,4 +1,4 @@
-# Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
+install# Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
 
 Finova is a high-performance financial management platform integrated with an **intelligent Financial AI Agent** powered by **Groq LLM + Function/Tool Calling**.
 
@@ -114,3 +114,14 @@ node tests/agent.test.js
 ## 📁 System Prompt Location
 
 The central system message is managed at [`backend/agent/system_prompt.js`](file:///c:/Users/anubh/OneDrive/Documents/GitHub/New%20folder/HackInMotion-RICR-HIM-1018/backend/agent/system_prompt.js). It enforces grounding, forbids hallucinating numbers, and instructs the agent to rely strictly on tool execution outputs.
+
+---
+
+## 👥 Team
+
+**Team Name:** RICR-HIM-1018
+
+**Team Members:**
+- Adarsh Malviya
+- Anubhav Gupta
+- Ayush Raj
