@@ -1,5 +1,8 @@
 # Finova — HackInMotion Presentation Slide Deck (RICR-HIM-1018)
 
+*Last Updated: August 14, 2026*
+*Hackathon: HackInMotion RICR-HIM-1018*
+
 ## Slide 1: Title Slide
 * **Title**: ✦ Finova — Smart Expense Analyzer & Financial Health Dashboard with AI Agent
 * **Subtitle**: Pre-qualifier HackInMotion Hackathon Presentation
