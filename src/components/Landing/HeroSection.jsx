@@ -40,16 +40,15 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
 
           {/* Main Headline */}
           <h1 className="display-title" style={{
-            fontSize: '3.4rem',
+            fontSize: '3.15rem',
             fontWeight: 800,
-            lineHeight: 1.08,
+            lineHeight: 1.1,
             color: 'var(--text-dark)',
-            marginBottom: '20px',
-            letterSpacing: '-0.03em'
+            marginBottom: '18px',
+            letterSpacing: '-0.025em'
           }}>
-            TAKE<br />
-            CONTROL OF<br />
-            YOUR MONEY<br />
+            TAKE CONTROL<br />
+            OF YOUR MONEY<br />
             <span style={{
               background: 'linear-gradient(135deg, #7c5cff 0%, #906ffa 40%, #c084fc 100%)',
               WebkitBackgroundClip: 'text',
@@ -62,10 +61,10 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
 
           {/* Subtitle */}
           <p style={{
-            fontSize: '1.05rem',
+            fontSize: '1.025rem',
             color: 'var(--text-muted)',
             lineHeight: 1.6,
-            maxWidth: '460px',
+            maxWidth: '480px',
             marginBottom: '28px',
             fontWeight: 500
           }}>
@@ -73,17 +72,17 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
           </p>
 
           {/* CTA Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '36px' }}>
             <button
               onClick={onNavigateToRegister}
               className="btn-pill-dark"
               style={{ padding: '14px 28px', fontSize: '0.95rem', fontWeight: 700 }}
             >
-              Get Started <ArrowRight size={16} />
+              Get Started Free <ArrowRight size={16} />
             </button>
 
             <button
-              onClick={() => scrollToSection ? scrollToSection('features') : null}
+              onClick={() => scrollToSection ? scrollToSection('how-it-works') : null}
               style={{
                 background: '#ffffff',
                 color: 'var(--text-dark)',
@@ -99,88 +98,87 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
               onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
               onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
             >
-              Explore Features
+              See How It Works
             </button>
           </div>
 
           {/* LEFT BOTTOM TRUST FEATURES */}
           <div className="hero-trust-highlights" style={{
             display: 'flex',
-            flexDirection: 'column',
             gap: '16px',
             paddingTop: '20px',
             borderTop: '1px solid #dce0ee',
             width: '100%',
-            maxWidth: '460px'
+            maxWidth: '520px'
           }}>
             {/* Feature 1 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: 1 }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 background: 'rgba(124, 92, 255, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <ShieldCheck size={18} color="var(--accent-purple)" />
+                <ShieldCheck size={16} color="var(--accent-purple)" />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>
                   Bank-Level Security
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Your data is encrypted and 100% private
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Your data is protected
                 </div>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: 1 }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 background: 'rgba(192, 132, 252, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Sparkles size={18} color="#c084fc" />
+                <Sparkles size={16} color="#c084fc" />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>
                   AI-Powered Insights
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Smart analysis that finds what you miss
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Smart recommendations
                 </div>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: 1 }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 background: 'rgba(16, 185, 129, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Compass size={18} color="#10b981" />
+                <Compass size={16} color="#10b981" />
               </div>
               <div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-dark)' }}>
-                  Actionable Guidance
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dark)' }}>
+                  Real-time Analysis
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Clear steps to save more and stress less
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Track. Analyze. Improve.
                 </div>
               </div>
             </div>
@@ -189,21 +187,25 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
 
         {/* ==================== RIGHT HERO COLUMN: FINOVA COMMAND CENTER ==================== */}
         <div className="hero-right-col">
-          {/* FLOATING CARD 1: AI Insight (Top Right) */}
+          {/* FLOATING CARD 1: AI Insight (Top Right Floating) */}
           <div className="floating-card-1 glass-floating-card floating-card-container-mobile" style={{
             position: 'absolute',
-            top: '-24px',
-            right: '-16px',
+            top: '-28px',
+            right: '-10px',
             zIndex: 10,
             padding: '14px 18px',
-            maxWidth: '280px',
+            maxWidth: '290px',
+            background: '#ffffff',
+            borderRadius: '18px',
+            boxShadow: '0 14px 36px rgba(25, 23, 40, 0.12)',
+            border: '1px solid #dce0ee',
             display: 'flex',
             alignItems: 'flex-start',
             gap: '12px'
           }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '10px',
               background: 'linear-gradient(135deg, #7c5cff, #c084fc)',
               display: 'flex',
@@ -216,8 +218,8 @@ export const HeroSection = ({ onNavigateToRegister, scrollToSection }) => {
               <Bot size={18} />
             </div>
             <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                AI Insight
+              <div style={{ fontSize: '0.725rem', fontWeight: 800, color: 'var(--accent-purple)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                AI INSIGHT
               </div>
               <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-dark)', marginTop: '2px', lineHeight: 1.35 }}>
                 You could save <span style={{ color: '#10b981', fontWeight: 800 }}>₹3,200</span> this month by optimizing food delivery & subscriptions.

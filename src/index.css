@@ -217,8 +217,8 @@ body {
 /* --- Finova Hero Redesign Layout & Styling --- */
 .hero-redesign-grid {
   display: grid;
-  grid-template-columns: 38% 1fr;
-  gap: 40px;
+  grid-template-columns: 43% 1fr;
+  gap: 48px;
   align-items: flex-start;
   position: relative;
   width: 100%;
