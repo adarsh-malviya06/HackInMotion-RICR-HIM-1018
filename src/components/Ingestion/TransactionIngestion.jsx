@@ -513,7 +513,7 @@ export const TransactionIngestion = () => {
 
       {/* POST-IMPORT FINANCIAL DATA PRESENTATION & INTERACTIVE LEDGER */}
       <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '16px 0' }} />
-      <PostImportAnalytics title="Uploaded Financial Statement Analysis" />
+      <PostImportAnalytics title="Interactive Transaction Ledger & Category Breakdown" />
     </div>
   );
 };

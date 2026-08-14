@@ -1,7 +1,6 @@
 import React from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { useAuth } from '../../context/AuthContext';
-import { PostImportAnalytics } from '../Ingestion/PostImportAnalytics';
 import { calculateCategoryTrends } from '../../services/dataIntelligence';
 import { 
   TrendingUp, 
@@ -523,11 +522,6 @@ export const FinancialDashboard = () => {
                 )}
               </div>
             </div>
-          </div>
-
-          {/* INTERACTIVE POST-IMPORT ANALYTICS & LEDGER */}
-          <div style={{ marginTop: '32px' }}>
-            <PostImportAnalytics title="Interactive Transaction Ledger & Category Breakdown" />
           </div>
         </div>
       )}
