@@ -1,10 +1,11 @@
 // Centralized API Client with credentials (HttpOnly Cookie support)
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 async function request(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = API_BASE_URL ? `${API_BASE_URL}${cleanEndpoint}` : cleanEndpoint;
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
@@ -42,7 +43,7 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     if (err.name === 'TypeError' && err.message.includes('fetch')) {
-      const networkErr = new Error('Backend server is unreachable. Please ensure http://localhost:5000 is running.');
+      const networkErr = new Error(`Backend server is unreachable (${API_BASE_URL || 'local'}). Please ensure backend is running.`);
       networkErr.status = 503;
       throw networkErr;
     }
