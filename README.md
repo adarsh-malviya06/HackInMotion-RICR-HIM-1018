@@ -109,6 +109,10 @@ The system prompt enforcing this grounding behavior lives in [`backend/agent/sys
 
 > _Dashboard, AI Copilot chat, and landing page views — add before submitting._
 
+### Recent UI polish
+- Auth screens now use a clean Finova wordmark with the "Intelligent Fintech" tagline centered under the brand.
+- Login and registration share the same reusable brand component for a consistent first impression.
+
 ---
 
 ## 🚀 Getting Started
@@ -143,9 +147,21 @@ npm run dev
 ```
 The Vite dev server proxies all `/api/*` calls to the Express backend on port `3001`.
 
+Open the app at:
+```text
+http://127.0.0.1:5173/
+```
+
+For the demo login flow, use the pre-filled credentials on the sign-in screen, or create a new account from the auth card.
+
 ### 5. Run automated tests
 ```bash
 node tests/agent.test.js
+```
+
+### 6. Verify production build
+```bash
+npm run build
 ```
 
 ---
