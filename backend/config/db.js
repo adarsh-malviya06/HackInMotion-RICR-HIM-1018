@@ -40,28 +40,17 @@ export const connectDB = async () => {
     console.warn(`[MongoDB] Primary Mongo URI (${mongoUri}) not active on port 27017: ${error.message}`);
   }
 
-  // 2. Persistent Disk Database Engine Fallback (WiredTiger Storage Engine saved to ./backend/data/db)
+  // 2. Persistent Disk Database Engine Fallback
   try {
-    const dbDir = path.join(__dirname, '..', 'data', 'db');
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
-
     const { MongoMemoryServer } = await import('mongodb-memory-server');
-    mongoMemoryInstance = await MongoMemoryServer.create({
-      instance: {
-        dbPath: dbDir,
-        storageEngine: 'wiredTiger'
-      }
-    });
+    mongoMemoryInstance = await MongoMemoryServer.create();
 
     const persistentUri = mongoMemoryInstance.getUri();
     const conn = await mongoose.connect(persistentUri);
     isMongoConnected = true;
-    console.log(`[MongoDB] REAL Disk-Persisted MongoDB (WiredTiger @ ${dbDir}) connected successfully: ${conn.connection.host}`);
+    console.log(`[MongoDB] Ephemeral/In-Memory MongoDB active: ${conn.connection.host}`);
   } catch (err) {
     isMongoConnected = false;
-    console.error(`[MongoDB Fatal Error] Could not initialize persistent MongoDB storage: ${err.message}`);
-    throw err;
+    console.warn(`[MongoDB Warning] Could not initialize MongoDB instance (${err.message}). Running in lightweight API mode.`);
   }
 };

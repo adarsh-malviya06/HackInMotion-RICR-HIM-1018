@@ -51,6 +51,9 @@ export const runFinancialAgent = async ({ message, userContext, history = [] }) 
         let functionArgs = {};
         try {
           functionArgs = JSON.parse(toolCall.function.arguments || '{}');
+          if (functionArgs.limit !== undefined) {
+            functionArgs.limit = Number(functionArgs.limit) || 10;
+          }
         } catch (e) {
           functionArgs = {};
         }
