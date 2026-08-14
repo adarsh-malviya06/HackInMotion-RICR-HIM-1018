@@ -6,6 +6,51 @@ import { LogOut, ArrowRight, User as UserIcon } from 'lucide-react';
 export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
   const { activeTab, setActiveTab } = useFinance();
   const { user, isAuthenticated, logout } = useAuth();
+  const [cleanLogoUrl, setCleanLogoUrl] = React.useState(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = '/finova_logo.png';
+    img.onload = () => {
+      if (!isMounted) return;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const maxC = Math.max(r, g, b);
+          const minC = Math.min(r, g, b);
+          const diff = maxC - minC;
+          const brightness = (r + g + b) / 3;
+          
+          // Convert off-white paper background and construction grid lines to transparent alpha
+          if (brightness > 200 && diff < 22) {
+            data[i + 3] = 0; // 100% transparent
+          } else if (brightness > 175 && diff < 16) {
+            // Anti-aliased soft edge transition
+            data[i + 3] = Math.floor(255 * (200 - brightness) / 25);
+          }
+        }
+        
+        ctx.putImageData(imgData, 0, 0);
+        setCleanLogoUrl(canvas.toDataURL('image/png'));
+      } catch (err) {
+        console.warn('Logo transparent conversion fallback:', err);
+      }
+    };
+    return () => { isMounted = false; };
+  }, []);
 
   const handleSignOut = async () => {
     await logout();
@@ -53,7 +98,7 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
       marginBottom: '28px',
       gap: '16px'
     }}>
-      {/* Brand Logo & Name matching Finova Intelligent Fintech */}
+      {/* Brand Text Only Branding (No Logo Image) */}
       <div 
         onClick={() => {
           if (isAuthenticated) {
@@ -62,29 +107,14 @@ export const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }} 
-        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }}
+        style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.0, cursor: 'pointer', flexShrink: 0 }}
       >
-        <img 
-          src="/finova_logo.png" 
-          alt="Finova Logo" 
-          style={{ 
-            height: '36px', 
-            width: 'auto',
-            objectFit: 'contain',
-            borderRadius: '6px'
-          }} 
-          onError={(e) => {
-            e.target.style.display = 'none';
-          }}
-        />
-        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-          <span className="display-title" style={{ fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
-            Finova
-          </span>
-          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#475569', letterSpacing: '0.04em' }}>
-            intelligent Fintech
-          </span>
-        </div>
+        <span className="display-title" style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#0f172a' }}>
+          Finova
+        </span>
+        <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#475569', letterSpacing: '0.02em', marginTop: '2px', lineHeight: 1.2 }}>
+          Intelligent Fintech
+        </span>
       </div>
 
       {/* Center Navigation */}
